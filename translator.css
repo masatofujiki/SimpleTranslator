@@ -1,0 +1,38 @@
+th,td {
+    box-sizing: border-box;
+    border: solid 1px;          /* 枠線指定 */
+    padding: 5px;
+    border-color: #000;
+}
+ 
+table {
+    border-collapse:  collapse; /* セルの線を重ねる */
+    width: 100%;               /* 幅指定 */
+    table-layout: fixed;
+    word-break: break-all;
+    word-wrap: break-all;
+}
+ 
+th.first {
+    width: 50%;              /* 幅指定 */
+    text-align: center;           /* 文字の揃え位置指定 */
+    color: #FFF;
+    background: #39F;
+}
+
+th.second {
+    width: 50%;              /* 幅指定 */
+    text-align: center;           /* 文字の揃え位置指定 */
+    color: #FFF;
+    background: #39F;
+}
+
+td {
+    text-align: left;        /* 文字の揃え位置指定 */
+    vertical-align: top;
+    background: #eee;
+}
+
+table tr:nth-child(even) td {
+	background: #fff;
+}
