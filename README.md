@@ -106,4 +106,4 @@ Selenium Basic がインストールされ、動作している環境なら以�
 [a]: https://lil.la/archives/3436
 [b]: https://bgt-48.blogspot.com/2019/04/windows10net35.html
 [c]: https://www3.nhk.or.jp/nhkworld/en/news/backstories/1622/
-[e]: https://github.com/masatofujiki/SimpleTranslator/archive/refs/tags/v1.0.5.zip
+[e]: https://github.com/masatofujiki/SimpleTranslator/archive/refs/tags/v1.0.6.zip
