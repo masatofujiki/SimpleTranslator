@@ -1,0 +1,6 @@
+.gitignore export-ignore
+.gitattributes export-ignore
+*.bas export-ignore
+*.cls export-ignore
+*.frm export-ignore
+*.frx export-ignore
