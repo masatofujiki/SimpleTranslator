@@ -48,7 +48,7 @@ End Sub
 
 Public Sub ShrinkNumberedText()
 
-    Call ShrinkText("(?:\[|Åy)(\d{1,8})(?:\]|Åz)", vbTab + "Åy" + "$1" + "Åz")
+    Call ShrinkText("(?:\[|Åy)(\d{4,8})(?:\]|Åz)(\n)*", vbTab + "Åy" + "$1" + "Åz" + vbLf)
 
 End Sub
 
@@ -105,8 +105,14 @@ Public Sub FormatPatentText()
     sb.Initialize
     Dim i As Long
     For i = LBound(beforeDescriptions) To UBound(beforeDescriptions)
-        If Len(Replace(beforeDescriptions(i, 1), ChrW(160), "")) > 0 Then
-            sb.Add CStr(beforeDescriptions(i, 1)) + vbLf
+'        If Len(Replace(beforeDescriptions(i, 1), ChrW(160), "")) > 0 Then
+'            sb.Add CStr(beforeDescriptions(i, 1)) + vbLf
+'        End If
+        'ò_ï∂ÇéÊìæÇµÇΩÇ∆Ç´ê}Ç™/Ç…Ç»ÇÈÇÃÇ≈ÇªÇÃïîï™ÇîÚÇŒÇ∑ÇΩÇﬂÇÃëŒâûÅBÇ¢Ç∏ÇÍÉäÉtÉ@ÉNÉ^ÉäÉìÉOÇ∑ÇÈÅB
+        Dim temp As String
+        temp = Trim(beforeDescriptions(i, 1))
+        If Len(Replace(temp, ChrW(160), "")) > 0 And temp <> "/" Then
+            sb.Add temp + vbLf
         End If
     Next
     allText = TrimLF(sb.ToText)
@@ -138,8 +144,14 @@ Public Sub FormatText()
     sb.Initialize
     Dim i As Long
     For i = LBound(beforeDescriptions) To UBound(beforeDescriptions)
-        If Len(Replace(beforeDescriptions(i, 1), ChrW(160), "")) > 0 Then
-            sb.Add CStr(beforeDescriptions(i, 1)) + vbLf
+'        If Len(Replace(beforeDescriptions(i, 1), ChrW(160), "")) > 0 Then
+'            sb.Add CStr(beforeDescriptions(i, 1)) + vbLf
+'        End If
+        'ò_ï∂ÇéÊìæÇµÇΩÇ∆Ç´ê}Ç™/Ç…Ç»ÇÈÇÃÇ≈ÇªÇÃïîï™ÇîÚÇŒÇ∑ÇΩÇﬂÇÃëŒâûÅBÇ¢Ç∏ÇÍÉäÉtÉ@ÉNÉ^ÉäÉìÉOÇ∑ÇÈÅB
+        Dim temp As String
+        temp = Trim(beforeDescriptions(i, 1))
+        If Len(Replace(temp, ChrW(160), "")) > 0 And temp <> "/" Then
+            sb.Add temp + vbLf
         End If
     Next
     allText = TrimLF(sb.ToText)
@@ -170,7 +182,7 @@ Public Function IsNumbered() As Boolean
     Dim reg As RegExp: Set reg = New RegExp
     reg.IgnoreCase = True
     reg.Global = True
-    reg.Pattern = "(?:\[|Åy)(\d{1,8})(?:\]|Åz)"
+    reg.Pattern = "(?:\[|Åy)(\d{4,8})(?:\]|Åz)"
     IsNumbered = reg.Test(allText)
 
 End Function

@@ -1,17 +1,11 @@
-VERSION 5.00
-Begin {C62A69F0-16DC-11CE-9E98-00AA00574A4F} ProgressBarForm 
-   Caption         =   "UserForm1"
-   ClientHeight    =   2940
-   ClientLeft      =   120
-   ClientTop       =   465
-   ClientWidth     =   6765
-   OleObjectBlob   =   "SimpleTranslator.xlsm.ProgressBarForm.frx":0000
-   StartUpPosition =   1  'オーナー フォームの中央
-End
-Attribute VB_Name = "ProgressBarForm"
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "WordOriginal"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
-Attribute VB_PredeclaredId = True
+Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 'MIT License
 '
@@ -37,30 +31,32 @@ Attribute VB_Exposed = False
 
 Option Explicit
 
-Public ProgressIsCancel As Boolean
+Public originalText_ As String
+Public translatedText_ As String
+Public originalLeftIndent_ As Single
+Public originalRightIndent_ As Single
+Public originalAlignment_ As Long
+Public translatedFontName_ As String
+Public originalFontSize_ As Long
+Public originalStyle_ As String
 
-Public Sub InitializeProgress(ByVal currentRow As Long, ByVal lastRow As Long)
+Public Sub Initialize(ByVal originalText As String, _
+                      ByVal translatedText As String, _
+                      ByVal originalLeftIndent As Single, _
+                      ByVal originalRightIndent As Single, _
+                      ByVal originalAlignment As Long, _
+                      ByVal translatedFontName As String, _
+                      ByVal originalFontSize As Long, _
+                      ByVal originalStyle As String)
 
-    ProgressIsCancel = False
-    ProgressBar1.Value = 0
-    ProgressBar1.Min = 0
-    ProgressBar1.Max = lastRow
-    ProgressLabel.Caption = "翻訳実行中"
-    Caption = "翻訳実行中"
-
-End Sub
-
-Private Sub CancelButton_Click()
-
-    ProgressIsCancel = True
-
-End Sub
-
-Public Sub UpdateProgress(ByVal currentRow As Long, ByVal lastRow As Long)
-
-    ProgressBar1.Value = currentRow - ROW_OFFSET
-    ProgressLabel = "翻訳実行中 " & CStr(Int((currentRow - ROW_OFFSET) / (lastRow - ROW_OFFSET) * 100)) & "% 完了"
-    DoEvents
-
+    originalText_ = originalText
+    translatedText = translatedText
+    originalLeftIndent_ = originalLeftIndent
+    originalRightIndent_ = originalRightIndent
+    originalAlignment_ = originalAlignment
+    translatedFontName_ = translatedFontName
+    originalFontSize_ = originalFontSize
+    originalStyle_ = originalStyle
+        
 End Sub
 

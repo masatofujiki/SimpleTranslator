@@ -34,7 +34,9 @@ Option Explicit
 Private Const TARGET_ELEMENT_ID As String = "target-dummydiv"
 Private Const OUTPUT_ATTRIBUTE As String = "textContent"
 Private Const URL_TRANSLATOR As String = "https://www.deepl.com/ja/translator#en/ja/"
-Private Const WAIT_TIME As Long = 500
+Private Const WAIT_MILLISECONDS As Long = 500
+Private Const SECOND_TO_RESTART As Long = 300
+Private Const MAX_RETRY_COUNT As Long = 100
 
 Private srcSheet_ As Worksheet
 Private dstSheet_ As Worksheet
@@ -96,7 +98,7 @@ Public Sub TransLateToHtml()
             End If
             currentRow_ = currentRow_ + 1
             stopTime_ = Timer
-            If (stopTime_ - startTime_ > 300) Then
+            If BeRestarted Then
                 GoTo Continue
             End If
             If ProgressBarForm.ProgressIsCancel Then
@@ -113,6 +115,12 @@ Continue:
 
 End Sub
 
+Private Function BeRestarted() As Boolean
+
+    BeRestarted = (stopTime_ - startTime_ > SECOND_TO_RESTART)
+
+End Function
+
 Private Function TranslateDeepL(ByVal targetText As String) As String
 
     Dim parameter As String
@@ -123,14 +131,22 @@ Private Function TranslateDeepL(ByVal targetText As String) As String
     parameter = Replace(parameter, "%81G", "%5C%81G")
     parameter = Replace(parameter, "%81H", "%5C%81H")
     parameter = Replace(parameter, "%7C", "%5C%7C")
-    browser_.Get URL_TRANSLATOR & parameter
+    Dim connected As Boolean
+    connected = browser_.Get(URL_TRANSLATOR & parameter)
+    If Not connected Then
+        TranslateDeepL = "タイムアウトしました。"
+        Exit Function
+    End If
+    Dim retryCount As Long
+    retryCount = 0
     Dim s As String
     Do
-        DoEvents
+'        DoEvents
         s = CStr(browser_.FindElementById(TARGET_ELEMENT_ID).Attribute(OUTPUT_ATTRIBUTE))
         s = Replace(s, vbCrLf, "")
-        browser_.Wait WAIT_TIME
-    Loop Until (Len(s) <> 0)
+        browser_.Wait WAIT_MILLISECONDS
+        retryCount = retryCount + 1
+    Loop Until (Len(s) <> 0 Or retryCount >= MAX_RETRY_COUNT)
     TranslateDeepL = CStr(browser_.FindElementById(TARGET_ELEMENT_ID).Attribute(OUTPUT_ATTRIBUTE))
 
 End Function
@@ -143,8 +159,8 @@ Public Sub CreateHtml()
     Call CreateContents(sb)
     Call CreateFooter(sb)
 
-    Dim filePath As String
-    filePath = ThisWorkbook.Path & "\" & fileName_ & ".html"
+'    Dim filePath As String
+'    filePath = ThisWorkbook.Path & "\" & fileName_ & ".html"
 
     On Error GoTo myError
     
@@ -154,12 +170,12 @@ Public Sub CreateHtml()
     adoStream.LineSeparator = 10
     adoStream.Open
     adoStream.WriteText sb.ToText
-    adoStream.SaveToFile filePath, 2
+    adoStream.SaveToFile fileName_, 2
     adoStream.Close
     
     Dim wsh As WshShell
     Set wsh = New WshShell
-    wsh.Run ("chrome.exe -url " & filePath)
+    wsh.Run ("chrome.exe -url " & fileName_)
     Set wsh = Nothing
     
     Exit Sub
@@ -177,7 +193,7 @@ Private Sub CreateHeader(ByRef sb As StringBuilder)
     sb.Add "<html lang=""ja"">"
     sb.Add "<head>"
     sb.Add "<meta charset=""UTF-8"">"
-    sb.Add "<link rel=""stylesheet""  href=""translator.css"">"
+    sb.Add "<link rel=""stylesheet"" href=""translator.css"">"
     sb.Add "<title>"
     sb.Add fileName_
     sb.Add "</title>"

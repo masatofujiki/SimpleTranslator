@@ -26,7 +26,8 @@ Option Explicit
 Public Function GetFilePath() As String
 
     Dim fileName As Variant
-    fileName = Application.GetSaveAsFilename(InitialFileName:=Application.ThisWorkbook.Path & "\", FileFilter:="HTMLファイル, *.html")
+    fileName = Application.GetSaveAsFilename(InitialFileName:=Application.ThisWorkbook.Path & "\" & _
+                                             ThisWorkbook.Worksheets(1).PublicationNumberTextBox.Text, FileFilter:="HTMLファイル, *.html")
     If VarType(fileName) = vbBoolean Then
         GetFilePath = ""
         Exit Function
@@ -80,6 +81,22 @@ Public Function ReturnMax(ByVal value1 As Long, ByVal value2 As Long) As Long
         Exit Function
     End If
     ReturnMax = value2
+
+End Function
+
+Public Function CleanChar(strData As String) As String
+
+    Dim result As String: result = ""
+    Dim i As Long
+    For i = 1 To Len(strData)
+        Dim currentChar As String
+        currentChar = Mid$(strData, i, 1)
+        If Asc(currentChar) < 0 Or 32 <= Asc(currentChar) Then
+            '漢字のAscの返り値はマイナスに留意
+            result = result & currentChar
+        End If
+    Next
+    CleanChar = result
 
 End Function
 

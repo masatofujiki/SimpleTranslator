@@ -36,7 +36,9 @@ Private Const OUTPUT_ATTRIBUTE As String = "textContent"
 Private Const URL_TRANSLATOR As String = "https://www.deepl.com/ja/translator#en/ja/"
 Private Const WINDOW_ZOOM As Long = 60
 Private Const PAGE_ZOOM As Long = 45
-Private Const WAIT_TIME As Long = 500
+Private Const WAIT_MILLISECONDS As Long = 500
+Private Const SECOND_TO_RESTART As Long = 300
+Private Const MAX_RETRY_COUNT As Long = 60
 
 Private srcSheet_ As Worksheet
 Private dstSheet_ As Worksheet
@@ -144,36 +146,68 @@ Public Sub TransLateToSheet()
             End If
             currentRow_ = currentRow_ + 1
             stopTime_ = Timer
-            If (stopTime_ - startTime_ > 300) Then
+            If BeRestarted Then
                 GoTo Continue
             End If
         Loop
 Continue:
         browser_.Quit
-        Debug.Print (stopTime_ - startTime_)
-        Debug.Print (currentRow_)
+        Debug.Print ("経過秒：" & stopTime_ - startTime_)
+        Debug.Print ("完了行：" & currentRow_ - ROW_START)
     Loop While (currentRow_ <= lastRow_)
 
 End Sub
 
+Private Function BeRestarted() As Boolean
+
+    BeRestarted = (stopTime_ - startTime_ > SECOND_TO_RESTART)
+
+End Function
+
 Private Function TranslateDeepL(ByVal targetText As String) As String
+
+'    Dim parameter As String
+'    parameter = targetText
+'    parameter = Replace(parameter, "%2F", "%5C%2F")
+'    parameter = Replace(parameter, "%26", "%5C%26")
+'    parameter = Replace(parameter, "%81F", "%5C%81F")
+'    parameter = Replace(parameter, "%81G", "%5C%81G")
+'    parameter = Replace(parameter, "%81H", "%5C%81H")
+'    parameter = Replace(parameter, "%7C", "%5C%7C")
+'    browser_.Get URL_TRANSLATOR & parameter
+'    Dim s As String
+'    Do
+'        DoEvents
+'        s = CStr(browser_.FindElementById(TARGET_ELEMENT_ID).Attribute(OUTPUT_ATTRIBUTE))
+'        s = Replace(s, vbCrLf, "")
+'        browser_.Wait WAIT_MILLISECONDS
+'    Loop Until (Len(s) <> 0)
+'    TranslateDeepL = CStr(browser_.FindElementById(TARGET_ELEMENT_ID).Attribute(OUTPUT_ATTRIBUTE))
 
     Dim parameter As String
     parameter = targetText
     parameter = Replace(parameter, "%2F", "%5C%2F")
-    parameter = Replace(parameter, "%26", "%5C%26")
+'    parameter = Replace(parameter, "%26", "%5C%26")
     parameter = Replace(parameter, "%81F", "%5C%81F")
     parameter = Replace(parameter, "%81G", "%5C%81G")
     parameter = Replace(parameter, "%81H", "%5C%81H")
     parameter = Replace(parameter, "%7C", "%5C%7C")
-    browser_.Get URL_TRANSLATOR & parameter
+    Dim connected As Boolean
+    connected = browser_.Get(URL_TRANSLATOR & parameter)
+    If Not connected Then
+        TranslateDeepL = "タイムアウトしました。"
+        Exit Function
+    End If
+    Dim retryCount As Long
+    retryCount = 0
     Dim s As String
     Do
         DoEvents
         s = CStr(browser_.FindElementById(TARGET_ELEMENT_ID).Attribute(OUTPUT_ATTRIBUTE))
         s = Replace(s, vbCrLf, "")
-        browser_.Wait WAIT_TIME
-    Loop Until (Len(s) <> 0)
+        browser_.Wait WAIT_MILLISECONDS
+        retryCount = retryCount + 1
+    Loop Until (Len(s) <> 0 Or retryCount >= MAX_RETRY_COUNT)
     TranslateDeepL = CStr(browser_.FindElementById(TARGET_ELEMENT_ID).Attribute(OUTPUT_ATTRIBUTE))
 
 End Function

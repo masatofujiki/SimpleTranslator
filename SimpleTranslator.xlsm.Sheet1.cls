@@ -31,13 +31,20 @@ Attribute VB_Exposed = True
 
 Option Explicit
 
+Private Const URL_GOOGLE_PATENTS As String = "https://patents.google.com/"
+Private Const URL_GOOGLE_PATENTS_PATENT As String = "https://patents.google.com/patent/"
+
+Private Const ROW_TITLE_OF_INVENTION As Long = 2
+Private Const COL_EXTRACTION As Long = 1
+Private Const TITLE_H1_TAG As String = "h1"
+
 Private Sub DeleteButton_Click()
 
     Call DeleteColumns
 
 End Sub
 
-Private Sub DeleteColumns()
+Public Sub DeleteColumns()
 
     Dim lastRow As Long: lastRow = Cells(Rows.Count, COL_SRC_ORIGINAL).End(xlUp).row
     If lastRow <= 1 Then
@@ -51,6 +58,24 @@ Private Sub DeleteColumns()
 
 End Sub
 
+Private Sub ExtractButton_Click()
+
+    If Len(PublicationNumberTextBox.Text) = 0 Then
+        MsgBox "公開番号が空です。"
+        Exit Sub
+    End If
+
+    Dim extractor As TextExtracctor
+    Set extractor = New TextExtracctor
+    Call extractor.Initialize(PublicationNumberTextBox.Text)
+    If Not extractor.IsReady Then
+        MsgBox "願番が存在しません。"
+        Exit Sub
+    End If
+    Call DeleteColumns
+    Call extractor.ExtractPatentText
+
+End Sub
 
 Private Sub FormatButton_Click()
 
@@ -65,6 +90,37 @@ Private Sub FormatButton_Click()
 
 End Sub
 
+Private Sub MargeButton_Click()
+
+    If (Selection.Count <> 2) Then
+        MsgBox "２つの行が選択されていません。"
+        Exit Sub
+    End If
+
+    If (Selection.Areas.Count = 1) Then
+        If (Selection.Columns.Count <> 1) Then
+            MsgBox "同じ行の列が選択されています。"
+            Exit Sub
+        End If
+        If (Cells(Selection(1).row, 1).Value = "" Or Cells(Selection(2).row, 1) = "") Then
+            Exit Sub
+        End If
+        Cells(Selection(1).row, 1) = Trim(Cells(Selection(1).row, 1) & " " & Cells(Selection(2).row, 1))
+        Cells(Selection(2).row, 1) = ""
+        Exit Sub
+    End If
+
+    If (Selection.Areas.Count = 2) Then
+        If (Selection.Areas(1).Column <> 1 Or Selection.Areas(2).Column <> 1) Then
+            MsgBox "１列目以外の列が選択されています。"
+            Exit Sub
+        End If
+        Cells(Selection.Areas(1).row, 1) = Trim(Cells(Selection.Areas(1).row, 1) & " " & Cells(Selection.Areas(2).row, 1))
+        Cells(Selection.Areas(2).row, 1) = ""
+    End If
+
+End Sub
+
 Private Sub PatentFormatButton_Click()
 
     Application.ScreenUpdating = False
@@ -75,6 +131,139 @@ Private Sub PatentFormatButton_Click()
     Call shrinker.FormatPatentText
 
     Application.ScreenUpdating = True
+
+End Sub
+
+'Private Sub ThesisSelectionButton_Click()
+'
+'    Dim myFileDialog As FileDialog
+'    Set myFileDialog = Application.FileDialog(msoFileDialogFilePicker)
+'    myFileDialog.AllowMultiSelect = False
+'    myFileDialog.Title = "翻訳する論文PDFを選択してください。"
+'    myFileDialog.Filters.Clear
+'    myFileDialog.Filters.Add "すべてのPDFファイル", "*.pdf"
+'
+'    If myFileDialog.Show <> -1 Then
+'        myFileDialog.Filters.Clear
+'        Exit Sub
+'    End If
+'
+'    Call DeleteColumns
+'
+'    Dim myFilePath As String
+'    myFilePath = myFileDialog.SelectedItems(1)
+'    myFileDialog.Filters.Clear
+'
+'    Dim translator As WordTranslator
+'    Set translator = New WordTranslator
+'    Call translator.Initialize(myFilePath)
+'    Call translator.CreateWordParagraphs
+''    Call translator.CreateTranslatedPDF
+''    Call translator.CreatePDF
+'
+''    Dim wordApp As Word.Application
+''    Set wordApp = New Word.Application
+''    wordApp.Visible = False
+''    wordApp.Visible = True
+''
+''    Dim wordDoc As Word.Document
+''    Set wordDoc = wordApp.Documents.Open(myFilePath)
+''
+''    Debug.Print wordDoc.Paragraphs.Count
+''
+''    Dim para As Paragraph
+''    Dim row As Long: row = 2
+''    For Each para In wordDoc.Paragraphs
+''
+''        Cells(row, 1).Value = para.Range.Text
+''        Cells(row, 2).Value = para.Range.Style
+''        row = row + 1
+''    Next
+'
+''    Dim mySelection As Word.Selection
+''    Set mySelection = wordApp.Selection
+''    With mySelection.Find
+''        .Text = targetText
+''        .Replacement.Text = ""
+''        .Wrap = wdFindContinue
+''        .MatchByte = False
+''        .MatchCase = False
+''        Do While .Execute
+''            mySelection.Range.Shading.BackgroundPatternColor = targetBackColor
+''            mySelection.Font.Color = targetForeColor
+''        Loop
+''    End With
+'
+''    Dim ws As Worksheet
+''    Set ws = ThisWorkbook.Worksheets(1)
+''    Dim i As Long
+''    For i = 1 To 11
+''        Dim row As Long
+''        For row = 0 To ws.OLEObjects("ListBox" & i).Object.ListCount - 1
+''            Call ReplaceColor(mySelection, ws.OLEObjects("ListBox" & i).Object.List(row), ws.OLEObjects("ListBox" & i).Object.BackColor, ws.OLEObjects("ListBox" & i).Object.ForeColor)
+''        Next
+''    Next
+''
+''    Dim fso As FileSystemObject
+''    Set fso = New FileSystemObject
+''    Dim dirPath As String: dirPath = fso.GetParentFolderName(myFilePath)
+''    Dim baseFileName As String: baseFileName = fso.GetBaseName(myFilePath)
+''    Dim fullPath As String: fullPath = fso.BuildPath(dirPath, baseFileName & "_color.pdf")
+''    wordDoc.SaveAs2 fileName:=fullPath, FileFormat:=wdFormatPDF
+''
+''    wordDoc.Close SaveChanges:=False
+'''    wordApp.Visible = False
+''    wordApp.Quit
+''    Set wordApp = Nothing
+''
+''    MsgBox "色塗りが終了しました。"
+'
+'End Sub
+
+Private Sub PDFSelectionButton_Click()
+
+    Dim myFileDialog As FileDialog
+    Set myFileDialog = Application.FileDialog(msoFileDialogFilePicker)
+    myFileDialog.AllowMultiSelect = False
+    myFileDialog.Title = "翻訳するPDFを選択してください。"
+    myFileDialog.Filters.Clear
+    myFileDialog.Filters.Add "すべてのPDFファイル", "*.pdf"
+    
+    If myFileDialog.Show <> -1 Then
+        myFileDialog.Filters.Clear
+        Exit Sub
+    End If
+        
+    Call DeleteColumns
+    
+    Dim myFilePath As String
+    myFilePath = myFileDialog.SelectedItems(1)
+    myFileDialog.Filters.Clear
+    
+    Dim translator As WordTranslator
+    Set translator = New WordTranslator
+    Call translator.Initialize(myFilePath)
+    Call translator.CreateWordParagraphs
+
+End Sub
+'
+Private Sub PublicationNumberTextBox_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
+
+    If KeyCode = vbKeyReturn Then
+        If Len(PublicationNumberTextBox.Text) = 0 Then
+            MsgBox "公開番号が空です。"
+            Exit Sub
+        End If
+        Dim extractor As TextExtracctor
+        Set extractor = New TextExtracctor
+        Call extractor.Initialize(PublicationNumberTextBox.Text)
+        If Not extractor.IsReady Then
+            MsgBox "願番が存在しません。"
+            Exit Sub
+        End If
+        Call DeleteColumns
+        Call extractor.ExtractPatentText
+    End If
 
 End Sub
 
@@ -111,7 +300,7 @@ Private Sub TranslateToHtmlButton_Click()
     
     Dim translator As HtmlTranslator
     Set translator = New HtmlTranslator
-    Call translator.Initialize(fileName)
+    Call translator.Initialize(fileFullPath)
     If Not translator.HasFileName Then
         MsgBox "ファイル名が入力されていません。"
         Exit Sub
