@@ -95,7 +95,7 @@ Private Sub ExtractDescriptionLine()
         For Each element In elements
             Dim paragraphNumber As String: paragraphNumber = ""
             If element.Attribute("num") <> "0000" Then
-                paragraphNumber = "[" + CStr(element.Attribute("num")) + "]"
+                paragraphNumber = "[" + Replace(CStr(element.Attribute("num")), "p", "") + "]"
             End If
             Cells(currentRow_, 1).Value = paragraphNumber + vbLf + element.Text
             currentRow_ = currentRow_ + 1
