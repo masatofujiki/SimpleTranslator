@@ -1,192 +1,190 @@
-# SimpleTranslator(英語翻訳ツール)
+# SimpleTranslator(English translation tool)
 
-Excel に貼り付けた外国語を Selenium Basic と DeepL でお手軽に翻訳してくれるツールを作りました。
+[日本語 README はこちら][f]
 
-環境設定はお手軽ではないですが、一度、環境設定を済ませば Chrome Driver の更新以外は設定不要です。
+![d](img/simple_translator.gif)
 
-## ■ 背景
+I created a tool that can easily translate foreign words pasted into Excel using Selenium Basic and DeepL.
 
-現在は特許関連の仕事をしており、検索システムを利用して特許文献を検索しています。
+Setting up the environment is not easy, but once you are done setting up the environment, other than updating the Chrome Driver, there is no need to set up.
 
-検索結果として出力される特許文献は日本語だけでなく英語などの外国語の特許語文献もあり、
+## ■ Background
 
-外国語の特許文献を読んで技術内容を理解することがあります。
+I am currently working in a patent-related field and am using a search system to search for patent documents.
 
-## ■ 課題
+The patent documents that are output as search results are not only in Japanese but also in foreign languages such as English, and we sometimes read foreign language patent documents to understand the technical contents.
 
-外国語の特許文献の理解を補助するために検索システムには翻訳ツールが実装されていますが、
+## ■ Theme
 
-用意された翻訳ツールの翻訳精度が低く、外国語の特許文献の翻訳結果を理解するのに時間が掛かります。
+However, the translation accuracy of the translation tools provided is low, and it takes time to understand the translation results of foreign language patent documents.
 
-## ■ 目的
+## ■ Purpose
 
-翻訳ツールを利用して外国語の原文と DeepL で翻訳した翻訳文とを並べて表示することにより、
+The idea is to provide a translation tool that can compare the translated text with the original text with high accuracy by displaying the original text in a foreign language and the translated text translated by DeepL side by side.
 
-精度が高い翻訳文と原文とを比較できる翻訳ツールを提供することです。
-
-## ■ 必要なもの
+## ■ What you need
 
 ### OS
 
 - Microsoft Windows 10
 
-### ソフトウェア
+### Software
 
 - Google Chrome
-- Microsoft Excel 2016 または Microsoft Excel 2019
+- Microsoft Excel 2016 or Microsoft Excel 2019
 - Selenium Basic
 - Chrome Driver
 
-## ■Selenium Basic を動作させるまでの環境設定
+## ■ Setting up the environment to run Selenium Basic
 
-Selenium Basic がインストールされ、動作している環境なら以下は必要ありません。次に進んでください。
+If you have Selenium Basic installed and running, you do not need to do the following. Please proceed to the next step.
 
-1. [SeleniumBasic をインストールして Excel(VBA)から Web スクレイピングを行うまでのチュートリアル][a]のページを開きます。
-2. [上記記事][a]を参照して Selenium Basic をダウンロード＆インストールします。
-3. [上記記事][a]を参照して Chrome Driver のダウンロードし、ダウンロードした Chrome Driver を Selenium Basic をインストールしたフォルダにコピー＆上書きします。
-4. [上記記事][a]を参照して Selenium Basic の動作確認を行います。
-5. 「.Net Fremework 3.5」がインストールされていないために起こるエラーが発生したときは、[上記記事][a]の一番下のリンクを参照して「.Net Fremework 3.5」をインストールします。
-6. ここで「.Net Fremework 3.5」をインストールできないときは次の 7.の手順を実行します。
-7. [Windows10 に.NET3.5 をインストールする方法！][b]のページを参照して「.Net Fremework 3.5」をインストールします。変更したレジストリの値を戻すまできっちりやってください。
+1. [Open the tutorial page on how to install SeleniumBasic and perform web scraping from Excel (VBA)][a].
+2. Download and install Selenium Basic referring to [the above article][a].
+3. Download the Chrome Driver by referring to [the article above][a], and then copy and overwrite the downloaded Chrome Driver to the folder where you installed Selenium Basic.
+4. Check the operation of Selenium Basic referring to [the above article][a].
+5. If the error occurs because ".Net Fremework 3.5" is not installed, refer to the link at [the bottom of the above article][a] to install.
+6. If you are unable to install ".Net Fremework 3.5" at this point, perform the following step 7. 7.[How to install .NET3.5 on Windows 10! Install .Net Fremework 3.5 by referring to the page How to Install][b] . Net Fremework 3.5. Make sure to revert the changed registry values.
 
-## ■Simple Translator の使い方
+## ■ How to use Simple Translator
 
-1. [SimpleTranslator の zip ファイル][e]← クリックしてダウンロードします。
-2. 上記 1.でダウンロードした zip ファイルを解凍し、SimpleTranslator フォルダ内の SimpleTranslator.xlsm を開きます。
-3. 表示順を「翻訳文 → 原文」「原文 → 翻訳文」のどちらにするかのラジオボタンを選択します。
+1. [1.SimpleTranslator zip file][e] ← Click to download.
+2. Unzip the zip file downloaded in step 1 above, and open SimpleTranslator.xlsm in the SimpleTranslator folder.
+3. Select the radio button to choose the display order of "Translated Text → Source Text" or "Source Text → Translated Text".
 
 ![d](img/normal_img001.png)
 
-### Web 記事での使い方(※特許文献での使い方、PDF での使い方はここを飛ばして以下の項目に進んでください。)
+### How to use it in Web articles (For how to use it in patent documents and PDF, please skip this section and go to the following sections.)
 
-4. [サンプルページ][c]に表示された英文をマウスでなぞってコピーします。
+4. Trace the English text displayed on [the sample page][c] with your mouse to copy it.
 
 ![d](img/normal_img002.png)
 
-5. Excel のシート A2 で右クリックし、「貼り付けのオプション」で左から 2 番目のアイコンを選びます。
+5. Right-click on sheet A2 in Excel, and select the second icon from the left under Paste Options.
 
 ![d](img/normal_img003.png)
 
-6. 空白行を詰めるための「整形ボタン」を押します。
+6. Press the "Format button" to fill in the blank lines.
 
 ![d](img/normal_img004.png)
 
-7. 「翻訳(HTML)ボタン」を押します。
+7. Press the "Translate (HTML)" button.
 
 ![d](img/normal_img005.png)
 
-8. 「名前を付けて保存」ダイアログが表示されます。
+8. The "Save As" dialog box will appear.
 
 ![d](img/normal_img006.png)
 
-9. 名前を入力し保存します。ここでは「sample」と入力し「保存」ボタンを押します。
+9. Enter a name and save the file. In this case, enter "sample" and click the "Save button".
 
 ![d](img/normal_img007.png)
 
-10. 翻訳が開始され、プログレスバーが表示されるのでしばらく待ちます。
+10. The translation will start and a progress bar will appear.
 
 ![d](img/normal_img008.png)
 
-11. 翻訳が完成するとブラウザが立ち上がり翻訳結果が出力されます。
+11. When the translation is complete, the browser will open and output the translation results.
 
 ![d](img/normal_img009.png)
 
-12. 翻訳結果は HTML の形式でアプリケーションと同じ場所のディレクトリに作成されます。
+12. The translation results will be created in HTML format in a directory in the same location as the application.
 
-### 特許文献での使い方
+### Usage in patent documents
 
-4. 右上のテキストボックスに取得したい公開公報の公開番号を入力します。
+4. Enter the publication number of the public gazette you want to obtain in the text box on the upper right.
 
 ![d](img/patent_img001.png)
 
-5. 公開番号を入力したら「抽出」ボタンを押します。
+5. After entering the publication number, click the "Extract button".
 
 ![d](img/patent_img002.png)
 
-6. テキストが抽出された後、テキストを整形するために「特許整形ボタン」を押します。
+6. After the text has been extracted, press the "Patent Formatting Button" to format the text.
 
 ![d](img/patent_img003.png)
 
-7. 「翻訳(HTML)ボタン」を押します。
+7. Press the "Translate (HTML) button".
 
 ![d](img/patent_img004.png)
 
-8. 「名前を付けて保存」ダイアログが表示されるので公開番号を入力し「保存ボタン」を押します。
+8. When the "Save As" dialog box appears, enter the publication number and click the "Save button".
 
 ![d](img/patent_img005.png)
 
-9. 翻訳が開始され、プログレスバーが表示されるのでしばらく待ちます。
+9. The translation will start and a progress bar will appear, so wait a moment.
 
 ![d](img/patent_img006.png)
 
-10. 翻訳が完成するとブラウザが立ち上がり翻訳結果が出力されます。
+10. When the translation is complete, the browser will open and output the translation results.
 
 ![d](img/patent_img007.png)
 
-11. 翻訳結果は HTML の形式でアプリケーションと同じ場所のディレクトリに作成されます。
+11. The translation results will be created in HTML format in a directory in the same location as the application.
 
-### PDF ファイルでの使い方
+### How to use it with PDF files
 
-4. 「PDF 選択ボタン」を押します。
+4. Press the "Select PDF button".
 
 ![d](img/pdf_img001.png)
 
-5. 「翻訳する PDF を選択してください」ダイアログが表示されるので翻訳対象の PDF を選択します。
+5. When the "Select PDF to translate" dialog box appears, select the PDF you want to translate.
 
 ![d](img/pdf_img002.png)
 
-6. 翻訳対象の PDF を選択した後「OK ボタン」を押します。
+6. Select the PDF you want to translate, and then press the "OK button".
 
 ![d](img/pdf_img003.png)
 
-7. PDF からテキストの抽出が始まるのでしばらく待ちます。
+7. Wait for a while as the text extraction from the PDF starts.
 
 ![d](img/pdf_img004.png)
 
-8. 抽出したテキストが表示されるので「整形ボタン」を押して空白を埋めます。
+8. When the extracted text is displayed, click the "Format button" to fill in the blanks.
 
 ![d](img/pdf_img005.png)
 
-9. 「翻訳(HTML)ボタン」を押します。
+9. Press the "Translate (HTML) button".
 
 ![d](img/pdf_img006.png)
 
-10. 「名前を付けて保存」ダイアログが表示されるので名前を入力し保存します。
+10. When the "Save As" dialog box appears, enter a name and save the file.
 
 ![d](img/pdf_img007.png)
 
-11. ここでは「sample_pdf」と入力し「保存ボタン」を押します。
+11. In this case, enter "sample_pdf" and click the "Save button".
 
 ![d](img/pdf_img008.png)
 
-12. 翻訳が開始され、プログレスバーが表示されるのでしばらく待ちます。
+12. The translation will start and a progress bar will appear, so wait a moment.
 
 ![d](img/pdf_img009.png)
 
-13. 翻訳が完成するとブラウザが立ち上がり翻訳結果が出力されます。
+13. When the translation is complete, the browser will open and output the translation results.
 
 ![d](img/pdf_img010.png)
 
-13. 翻訳結果は HTML の形式でアプリケーションと同じ場所のディレクトリに作成されます。
+14. The translation results will be created in HTML format in a directory in the same location as the application.
 
-## ■ 注意
+## ■ Caution
 
-※Google Chrome がアップデートされると Chrome Driver が動かなくなります。
+If Google Chrome is updated, Chrome Driver will no longer work.
 
-※このときは[上記記事][a]を参照して Google Chrome のバージョンに合わせた Chrome Driver を上書き更新してください。
+In this case, please refer to [the above article][a] and overwrite the Chrome Driver that matches the version of Google Chrome.
 
-## ■ ダウンロードページ
+## ■ Download page
 
 1. [Selenium Basic](https://florentbr.github.io/SeleniumBasic/)
 2. [Chrome Driver](https://chromedriver.chromium.org/downloads)
 
-## ■ 参考ページ
+## ■ Reference page
 
-1. [SeleniumBasic をインストールして Excel(VBA)から Web スクレイピングを行うまでのチュートリアル][a]
-2. [Windows10 に.NET3.5 をインストールする方法！][b]
-3. [サンプル][c]
+1. [tutorial on how to install SeleniumBasic and perform web scraping from Excel (VBA)][a]
+2. [How to install .NET3.5 on Windows 10!][b]
+3. [sample][c]
 
 [a]: https://lil.la/archives/3436
 [b]: https://bgt-48.blogspot.com/2019/04/windows10net35.html
 [c]: https://www3.nhk.or.jp/nhkworld/en/news/backstories/1622/
 [e]: https://github.com/masatofujiki/SimpleTranslator/archive/refs/tags/v1.0.8.zip
+[f]: https://github.com/masatofujiki/SimpleTranslator/blob/main/README_JA.md
