@@ -49,32 +49,55 @@ If you have Selenium Basic installed and running, you do not need to do the foll
 ## ■ How to use Simple Translator
 
 1. [1.SimpleTranslator zip file][e] ← Click to download.
+
 2. Unzip the zip file downloaded in step 1 above, and open SimpleTranslator.xlsm in the SimpleTranslator folder.
+
 3. Select the language selection combo box.
+
    ![d](img/en_normal_img001.png)
+
 4. Select the target language.
+
    ![d](img/en_normal_img002.png)
+
 5. Select the radio button to choose the display order of "Translated Text → Source Text" or "Source Text → Translated Text".
+
    ![d](img/en_normal_img003.png)
 
 ### How to use it in Web articles (For how to use it in patent documents and PDF, please skip this section and go to the following sections.)
 
 6. Trace the English text displayed on [the sample page][c] with your mouse to copy it.
+
    ![d](img/en_normal_img004.png)
+
 7. Right-click on sheet A2 in Excel, and select the second icon from the left under Paste Options.
+
    ![d](img/en_normal_img005.png)
+
 8. Press the "Shaping button" to fill in the blank lines.
+
    ![d](img/en_normal_img006.png)
+
 9. Press the "Translate (HTML)" button.
+
    ![d](img/en_normal_img007.png)
+
 10. The "Save As" dialog box will appear.
+
     ![d](img/en_normal_img008.png)
+
 11. Enter a name and save the file. In this case, enter "sample" and click the "Save button".
+
     ![d](img/en_normal_img009.png)
+
 12. The translation will start and a progress bar will appear.
+
     ![d](img/en_normal_img010.png)
+
 13. When the translation is complete, the browser will open and output the translation results.
+
     ![d](img/en_normal_img011.png)
+
 14. The translation results will be created in HTML format in a directory in the same location as the application.
 
 ## ■ Caution
