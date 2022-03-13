@@ -33,7 +33,8 @@ Option Explicit
 
 Private Const TARGET_ELEMENT_ID As String = "target-dummydiv"
 Private Const OUTPUT_ATTRIBUTE As String = "textContent"
-Private Const URL_TRANSLATOR As String = "https://www.deepl.com/ja/translator#en/ja/"
+'Private Const URL_TRANSLATOR As String = "https://www.deepl.com/ja/translator#en/ja/"
+Private Const URL_TRANSLATOR As String = "https://www.deepl.com/ja/translator#en/"
 Private Const WAIT_MILLISECONDS As Long = 500
 Private Const SECOND_TO_RESTART As Long = 300
 
@@ -46,14 +47,16 @@ Private wordApp_ As Word.Application
 Private wordDoc_ As Word.Document
 Private currentParagraph_ As Long
 Private lastParagraph_ As Long
+Private outputLanguage_ As String
 
-Public Sub Initialize(ByVal fileName As String)
+Public Sub Initialize(ByVal fileName As String, ByVal outputLanguage As String)
 
     Set wordApp_ = New Word.Application
     Set originals_ = New Collection
     fileName_ = fileName
     wordApp_.Visible = True
     currentParagraph_ = 1
+    outputLanguage_ = outputLanguage
 
 End Sub
 
@@ -146,7 +149,7 @@ Private Function TranslateDeepL(ByVal targetText As String) As String
     parameter = Replace(parameter, "%81G", "%5C%81G")
     parameter = Replace(parameter, "%81H", "%5C%81H")
     parameter = Replace(parameter, "%7C", "%5C%7C")
-    browser_.Get URL_TRANSLATOR & parameter
+    browser_.Get URL_TRANSLATOR & outputLanguage_ & "/" & parameter
     Dim s As String
     Do
         DoEvents

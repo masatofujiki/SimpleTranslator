@@ -48,7 +48,7 @@ End Sub
 
 Public Sub ShrinkNumberedText()
 
-    Call ShrinkText("(?:\[|Åy)(\d{4,8})(?:\]|Åz)(\n)*", vbTab + "Åy" + "$1" + "Åz" + vbLf)
+    Call ShrinkText("(?:[\[ÅyÅm])([0-9ÇO-ÇX]{4,8})(?:[\]ÅzÅn])(\n)*", vbTab + "Åy" + "$1" + "Åz" + vbLf)
 
 End Sub
 
@@ -68,7 +68,7 @@ Private Sub ShrinkText(ByVal splitPattern As String, ByVal replaceToken As Strin
     afterDescriptions = Split(reg.Replace(allText, replaceToken), vbTab)
 
     Dim cellData As Variant
-    cellData = srcSheet_.Range(srcSheet_.Cells(LBound(afterDescriptions) + ROW_START - 1, targetCol_), srcSheet_.Cells(UBound(afterDescriptions) + ROW_START - 1, targetCol_))
+    cellData = srcSheet_.Range(srcSheet_.Cells(LBound(afterDescriptions) + TranslatorSheet.ROW_START - 1, targetCol_), srcSheet_.Cells(UBound(afterDescriptions) + TranslatorSheet.ROW_START - 1, targetCol_))
     Dim i As Long
     For i = LBound(afterDescriptions) To UBound(afterDescriptions)
         If Len(Trim(TrimLF(afterDescriptions(i)))) > 0 Then
@@ -76,12 +76,12 @@ Private Sub ShrinkText(ByVal splitPattern As String, ByVal replaceToken As Strin
         End If
     Next
 
-    srcSheet_.Range(srcSheet_.Cells(ROW_START, targetCol_), srcSheet_.Cells(lastRow, targetCol_)).ClearContents
-    srcSheet_.Range(srcSheet_.Cells(LBound(afterDescriptions) + ROW_START, targetCol_), srcSheet_.Cells(UBound(afterDescriptions) + ROW_START, targetCol_)) = cellData
-    srcSheet_.Rows(CStr(ROW_START) + ":" + CStr(UBound(afterDescriptions) + ROW_START)).AutoFit
+    srcSheet_.Range(srcSheet_.Cells(TranslatorSheet.ROW_START, targetCol_), srcSheet_.Cells(lastRow, targetCol_)).ClearContents
+    srcSheet_.Range(srcSheet_.Cells(LBound(afterDescriptions) + TranslatorSheet.ROW_START, targetCol_), srcSheet_.Cells(UBound(afterDescriptions) + TranslatorSheet.ROW_START, targetCol_)) = cellData
+    srcSheet_.Rows(CStr(TranslatorSheet.ROW_START) + ":" + CStr(UBound(afterDescriptions) + TranslatorSheet.ROW_START)).AutoFit
     
-    If srcSheet_.Cells(ROW_START, COL_START).Value = "" Then
-        srcSheet_.Rows(ROW_START).Delete
+    If srcSheet_.Cells(TranslatorSheet.ROW_START, TranslatorSheet.COL_START).Value = "" Then
+        srcSheet_.Rows(TranslatorSheet.ROW_START).Delete
     End If
 
 End Sub
@@ -94,13 +94,13 @@ Public Sub FormatPatentText()
     End If
     
     If HasOneText() Then
-        allText = TrimLF(srcSheet_.Cells(ROW_START, 1))
-        srcSheet_.Cells(ROW_START, 1).Value = allText
-        Rows(CStr(ROW_START) + ":" + CStr(ROW_START)).AutoFit
+        allText = TrimLF(srcSheet_.Cells(TranslatorSheet.ROW_START, 1))
+        srcSheet_.Cells(TranslatorSheet.ROW_START, 1).Value = allText
+        Rows(CStr(TranslatorSheet.ROW_START) + ":" + CStr(TranslatorSheet.ROW_START)).AutoFit
         Exit Sub
     End If
 
-    beforeDescriptions = srcSheet_.Range(srcSheet_.Cells(ROW_START, targetCol_), srcSheet_.Cells(lastRow, targetCol_))
+    beforeDescriptions = srcSheet_.Range(srcSheet_.Cells(TranslatorSheet.ROW_START, targetCol_), srcSheet_.Cells(lastRow, targetCol_))
     Dim sb As StringBuilder: Set sb = New StringBuilder
     sb.Initialize
     Dim i As Long
@@ -133,13 +133,13 @@ Public Sub FormatText()
     End If
     
     If HasOneText() Then
-        allText = TrimLF(srcSheet_.Cells(ROW_START, 1))
-        srcSheet_.Cells(ROW_START, 1).Value = allText
-        Rows(CStr(ROW_START) + ":" + CStr(ROW_START)).AutoFit
+        allText = TrimLF(srcSheet_.Cells(TranslatorSheet.ROW_START, 1))
+        srcSheet_.Cells(TranslatorSheet.ROW_START, 1).Value = allText
+        Rows(CStr(TranslatorSheet.ROW_START) + ":" + CStr(TranslatorSheet.ROW_START)).AutoFit
         Exit Sub
     End If
 
-    beforeDescriptions = srcSheet_.Range(srcSheet_.Cells(ROW_START, targetCol_), srcSheet_.Cells(lastRow, targetCol_))
+    beforeDescriptions = srcSheet_.Range(srcSheet_.Cells(TranslatorSheet.ROW_START, targetCol_), srcSheet_.Cells(lastRow, targetCol_))
     Dim sb As StringBuilder: Set sb = New StringBuilder
     sb.Initialize
     Dim i As Long
@@ -167,13 +167,13 @@ End Function
 
 Public Function HasOneText() As Boolean
 
-    HasOneText = (lastRow = ROW_START)
+    HasOneText = (lastRow = TranslatorSheet.ROW_START)
 
 End Function
 
 Public Function HasSomeText() As Boolean
 
-    HasSomeText = (lastRow > ROW_START)
+    HasSomeText = (lastRow > TranslatorSheet.ROW_START)
 
 End Function
 
@@ -182,7 +182,7 @@ Public Function IsNumbered() As Boolean
     Dim reg As RegExp: Set reg = New RegExp
     reg.IgnoreCase = True
     reg.Global = True
-    reg.Pattern = "(?:\[|Åy)(\d{4,8})(?:\]|Åz)"
+    reg.Pattern = "(?:[\[ÅyÅm])([0-9ÇO-ÇX]{4,8})(?:[\]ÅzÅn])"
     IsNumbered = reg.Test(allText)
 
 End Function

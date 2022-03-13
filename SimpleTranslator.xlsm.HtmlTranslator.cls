@@ -33,7 +33,8 @@ Option Explicit
 
 Private Const TARGET_ELEMENT_ID As String = "target-dummydiv"
 Private Const OUTPUT_ATTRIBUTE As String = "textContent"
-Private Const URL_TRANSLATOR As String = "https://www.deepl.com/ja/translator#en/ja/"
+'Private Const URL_TRANSLATOR As String = "https://www.deepl.com/ja/translator#en/ja/"
+Private Const URL_TRANSLATOR As String = "https://www.deepl.com/ja/translator#en/"
 Private Const WAIT_MILLISECONDS As Long = 500
 Private Const SECOND_TO_RESTART As Long = 300
 Private Const MAX_RETRY_COUNT As Long = 100
@@ -45,17 +46,25 @@ Private currentRow_ As Long
 Private startTime_ As Double
 Private stopTime_ As Double
 Private browser_ As Selenium.WebDriver
-Private destinations_ As Collection
+Private targets_ As Collection
 Private fileName_ As String
 Private originalTextColumn As Long
 Private translatedTextColumn As Long
+Private outputCombobox_ As MSForms.ComboBox
+Private originalTextTitle_ As String
+Private translatedTextTitle_ As String
+Private outputLanguage_ As String
 
 Public Sub Initialize(ByVal fileName As String)
 
-    Set destinations_ = New Collection
+    Set targets_ = New Collection
     Set srcSheet_ = ThisWorkbook.Worksheets(1)
     lastRow_ = GetLastRow(srcSheet_)
     currentRow_ = 2
+    Set outputCombobox_ = ThisWorkbook.Worksheets(1).OutputComboBox
+    outputLanguage_ = outputCombobox_.List(outputCombobox_.ListIndex, COL_OUTPUT_LANGUAGE)
+    originalTextTitle_ = outputCombobox_.List(outputCombobox_.ListIndex, COL_ORIGINAL_TEXT)
+    translatedTextTitle_ = outputCombobox_.List(outputCombobox_.ListIndex, COL_TRANSLATED_TEXT)
     If ThisWorkbook.Worksheets(1).LeftOriginalTextRadio.Value Then
         originalTextColumn = 1
         translatedTextColumn = 2
@@ -64,7 +73,7 @@ Public Sub Initialize(ByVal fileName As String)
         translatedTextColumn = 1
     End If
     fileName_ = fileName
-    
+
 End Sub
 
 Public Function HasFileName() As Boolean
@@ -85,15 +94,15 @@ Public Sub TransLateToHtml()
         startTime_ = Timer
         Do While (currentRow_ <= lastRow_)
             Dim targetText As String
-            targetText = Trim(WorksheetFunction.EncodeURL(srcSheet_.Cells(currentRow_, COL_SRC_ORIGINAL).Value))
+            targetText = Trim(WorksheetFunction.EncodeURL(srcSheet_.Cells(currentRow_, TranslatorSheet.COL_SRC_ORIGINAL).Value))
             If Len(Trim(targetText)) <> 0 Then
-                Dim myDestination As Destination: Set myDestination = New Destination
+                Dim myTarget As Target: Set myTarget = New Target
                 Dim src As String
-                src = srcSheet_.Cells(currentRow_, COL_SRC_ORIGINAL).Value
+                src = srcSheet_.Cells(currentRow_, TranslatorSheet.COL_SRC_ORIGINAL).Value
                 Dim dst As String
                 dst = TranslateDeepL(targetText)
-                Call myDestination.Initialize(src, dst)
-                destinations_.Add myDestination
+                Call myTarget.Initialize(src, dst)
+                targets_.Add myTarget
                 Call ProgressBarForm.UpdateProgress(currentRow_, lastRow_)
             End If
             currentRow_ = currentRow_ + 1
@@ -109,7 +118,7 @@ Public Sub TransLateToHtml()
 Continue:
         browser_.Quit
         Debug.Print ("経過秒：" & stopTime_ - startTime_)
-        Debug.Print ("完了行：" & currentRow_ - ROW_START)
+        Debug.Print ("完了行：" & currentRow_ - TranslatorSheet.ROW_START)
     Loop While (currentRow_ <= lastRow_ And ProgressBarForm.ProgressIsCancel = False)
     Unload ProgressBarForm
 
@@ -132,7 +141,7 @@ Private Function TranslateDeepL(ByVal targetText As String) As String
     parameter = Replace(parameter, "%81H", "%5C%81H")
     parameter = Replace(parameter, "%7C", "%5C%7C")
     Dim connected As Boolean
-    connected = browser_.Get(URL_TRANSLATOR & parameter)
+    connected = browser_.Get(URL_TRANSLATOR & outputLanguage_ & "/" & parameter)
     If Not connected Then
         TranslateDeepL = "タイムアウトしました。"
         Exit Function
@@ -202,11 +211,11 @@ Private Sub CreateHeader(ByRef sb As StringBuilder)
     sb.Add "<table>"
     sb.Add "<tr>"
     If (originalTextColumn = 1) Then
-        sb.Add "<th class=""first"">原文</th>"
-        sb.Add "<th class=""second"">翻訳文</th>"
+        sb.Add "<th class=""first"">" & originalTextTitle_ & "</th>"
+        sb.Add "<th class=""second"">" & translatedTextTitle_ & "</th>"
     Else
-        sb.Add "<th class=""first"">翻訳文</th>"
-        sb.Add "<th class=""second"">原文</th>"
+        sb.Add "<th class=""first"">" & translatedTextTitle_ & "</th>"
+        sb.Add "<th class=""second"">" & originalTextTitle_ & "</th>"
     End If
     sb.Add "</tr>"
     
@@ -214,19 +223,19 @@ End Sub
 
 Private Sub CreateContents(ByRef sb As StringBuilder)
 
-    Dim myDestination As Destination
-    For Each myDestination In destinations_
+    Dim myTarget As Target
+    For Each myTarget In targets_
         sb.Add "<tr>"
         sb.Add "<td>"
         Dim originalText As String
-        originalText = Replace(myDestination.originalText_, "<", "&lt;")
+        originalText = Replace(myTarget.originalText_, "<", "&lt;")
         originalText = Replace(originalText, ">", "&gt;")
         originalText = Replace(originalText, vbCrLf, "<br>")
         originalText = Replace(originalText, vbLf, "<br>")
         originalText = Replace(originalText, "&", "&amp")
         originalText = Replace(originalText, """", "&quot;")
         Dim translatedText As String
-        translatedText = Replace(myDestination.translatedText_, "<", "&lt;")
+        translatedText = Replace(myTarget.translatedText_, "<", "&lt;")
         translatedText = Replace(translatedText, ">", "&gt;")
         translatedText = Replace(translatedText, vbCrLf, "<br>")
         translatedText = Replace(translatedText, vbLf, "<br>")

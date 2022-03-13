@@ -23,7 +23,7 @@ Attribute VB_Name = "ConstantVallue"
 
 Option Explicit
 
-Public Enum SheetDefiniton
+Public Enum TranslatorSheet
     ROW_START = 2
     COL_START = 1
     COL_END = 2
@@ -34,4 +34,22 @@ Public Enum SheetDefiniton
     MARGIN_HEIGHT = 12
 End Enum
 
+Public Enum Setting
+    ROW_START = 1
+    COL_START = 1
+    COL_END = 11
+End Enum
+
+Public Enum ButtonText
+    COL_OUTPUT_LANGUAGE = 1
+    COL_TRANSLATED_TEXT
+    COL_ORIGINAL_TEXT
+    COL_SHAPING
+    COL_PATENT_SHAPING
+    COL_TRANSLATION_HTML
+    COL_TRANSLATION_SHEET
+    COL_MERGE
+    COL_DELETE
+    COL_PDF_SELECTION
+End Enum
 

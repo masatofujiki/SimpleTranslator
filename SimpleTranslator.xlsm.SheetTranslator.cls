@@ -31,9 +31,12 @@ Attribute VB_Exposed = False
 
 Option Explicit
 
+'Private Const TARGET_CLASS As String = "trans-sentence ng-star-inserted inmt-on"
 Private Const TARGET_ELEMENT_ID As String = "target-dummydiv"
 Private Const OUTPUT_ATTRIBUTE As String = "textContent"
-Private Const URL_TRANSLATOR As String = "https://www.deepl.com/ja/translator#en/ja/"
+'Private Const URL_TRANSLATOR As String = "https://www.deepl.com/ja/translator#en/ja/"
+Private Const URL_TRANSLATOR As String = "https://www.deepl.com/ja/translator#en/"
+'Private Const URL_TRANSLATOR As String = "https://miraitranslate.com/trial/#ko/ja/"
 Private Const WINDOW_ZOOM As Long = 60
 Private Const PAGE_ZOOM As Long = 45
 Private Const WAIT_MILLISECONDS As Long = 500
@@ -47,25 +50,34 @@ Private currentRow_ As Long
 Private startTime_ As Double
 Private stopTime_ As Double
 Private browser_ As Selenium.WebDriver
-Private destinations_ As Collection
-Private originalTextColumn As Long
-Private translatedTextColumn As Long
+Private targets_ As Collection
+Private originalTextColumn_ As Long
+Private translatedTextColumn_ As Long
+Private outputCombobox_ As MSForms.ComboBox
+Private originalTextTitle_ As String
+Private translatedTextTitle_ As String
+Private outputLanguage_ As String
 
 Public Sub Initialize(ByRef dstSheet As Worksheet)
 
-    Set destinations_ = New Collection
+    Set targets_ = New Collection
     Set srcSheet_ = ThisWorkbook.Worksheets(1)
     Set dstSheet_ = dstSheet
     lastRow_ = GetLastRow(srcSheet_)
     currentRow_ = 2
+    
+    Set outputCombobox_ = ThisWorkbook.Worksheets(1).OutputComboBox
+    outputLanguage_ = outputCombobox_.List(outputCombobox_.ListIndex, COL_OUTPUT_LANGUAGE)
+    originalTextTitle_ = outputCombobox_.List(outputCombobox_.ListIndex, COL_ORIGINAL_TEXT)
+    translatedTextTitle_ = outputCombobox_.List(outputCombobox_.ListIndex, COL_TRANSLATED_TEXT)
     If ThisWorkbook.Worksheets(1).LeftOriginalTextRadio.Value Then
-        originalTextColumn = 1
-        translatedTextColumn = 2
+        originalTextColumn_ = 1
+        translatedTextColumn_ = 2
     Else
-        originalTextColumn = 2
-        translatedTextColumn = 1
+        originalTextColumn_ = 2
+        translatedTextColumn_ = 1
     End If
-    Call FormatDstSheet
+    Call FormatTargetSheet
     Call CopyOriginalText
 
 End Sub
@@ -73,14 +85,14 @@ End Sub
 Private Sub CopyOriginalText()
 
     Dim virtualCell As Variant
-    virtualCell = srcSheet_.Range(srcSheet_.Cells(ROW_START, COL_START), srcSheet_.Cells(lastRow_, COL_START))
-    dstSheet_.Range(dstSheet_.Cells(ROW_START, originalTextColumn), dstSheet_.Cells(lastRow_, originalTextColumn)) = virtualCell
+    virtualCell = srcSheet_.Range(srcSheet_.Cells(TranslatorSheet.ROW_START, TranslatorSheet.COL_START), srcSheet_.Cells(lastRow_, TranslatorSheet.COL_START))
+    dstSheet_.Range(dstSheet_.Cells(TranslatorSheet.ROW_START, originalTextColumn_), dstSheet_.Cells(lastRow_, originalTextColumn_)) = virtualCell
 
 End Sub
 
-Private Sub FormatDstSheet()
+Private Sub FormatTargetSheet()
 
-    With dstSheet_.Columns(originalTextColumn)
+    With dstSheet_.Columns(originalTextColumn_)
         .ColumnWidth = 90
         .Font.Name = "UD デジタル 教科書体 N-R"
         .NumberFormatLocal = "@"
@@ -90,7 +102,7 @@ Private Sub FormatDstSheet()
         .HorizontalAlignment = xlLeft
     End With
 
-    With dstSheet_.Columns(translatedTextColumn)
+    With dstSheet_.Columns(translatedTextColumn_)
         .ColumnWidth = 90
         .Font.Name = "UD デジタル 教科書体 N-R"
         .NumberFormatLocal = "@"
@@ -100,14 +112,14 @@ Private Sub FormatDstSheet()
         .HorizontalAlignment = xlLeft
     End With
     
-    With dstSheet_.Cells(ROW_TITLE, originalTextColumn)
-        .Value = "原文"
+    With dstSheet_.Cells(TranslatorSheet.ROW_TITLE, originalTextColumn_)
+        .Value = originalTextTitle_
         .HorizontalAlignment = xlCenter
         .RowHeight = 50
     End With
     
-    With dstSheet_.Cells(ROW_TITLE, translatedTextColumn)
-        .Value = "翻訳文"
+    With dstSheet_.Cells(TranslatorSheet.ROW_TITLE, translatedTextColumn_)
+        .Value = translatedTextTitle_
         .HorizontalAlignment = xlCenter
         .RowHeight = 50
     End With
@@ -137,12 +149,12 @@ Public Sub TransLateToSheet()
         startTime_ = Timer
         Do While (currentRow_ <= lastRow_)
             Dim targetText As String
-            targetText = Trim(WorksheetFunction.EncodeURL(dstSheet_.Cells(currentRow_, originalTextColumn).Value))
+            targetText = Trim(WorksheetFunction.EncodeURL(dstSheet_.Cells(currentRow_, originalTextColumn_).Value))
             If Len(Trim(targetText)) <> 0 Then
-                Dim myDestination As Destination: Set myDestination = New Destination
-                Call myDestination.Initialize(dstSheet_.Cells(currentRow_, originalTextColumn).Value, CStr(TranslateDeepL(targetText)))
-                destinations_.Add myDestination
-                dstSheet_.Cells(currentRow_, translatedTextColumn).Value = myDestination.translatedText_
+                Dim myTarget As Target: Set myTarget = New Target
+                Call myTarget.Initialize(dstSheet_.Cells(currentRow_, originalTextColumn_).Value, CStr(TranslateDeepL(targetText)))
+                targets_.Add myTarget
+                dstSheet_.Cells(currentRow_, translatedTextColumn_).Value = myTarget.translatedText_
             End If
             currentRow_ = currentRow_ + 1
             stopTime_ = Timer
@@ -153,7 +165,7 @@ Public Sub TransLateToSheet()
 Continue:
         browser_.Quit
         Debug.Print ("経過秒：" & stopTime_ - startTime_)
-        Debug.Print ("完了行：" & currentRow_ - ROW_START)
+        Debug.Print ("完了行：" & currentRow_ - TranslatorSheet.ROW_START)
     Loop While (currentRow_ <= lastRow_)
 
 End Sub
@@ -166,24 +178,6 @@ End Function
 
 Private Function TranslateDeepL(ByVal targetText As String) As String
 
-'    Dim parameter As String
-'    parameter = targetText
-'    parameter = Replace(parameter, "%2F", "%5C%2F")
-'    parameter = Replace(parameter, "%26", "%5C%26")
-'    parameter = Replace(parameter, "%81F", "%5C%81F")
-'    parameter = Replace(parameter, "%81G", "%5C%81G")
-'    parameter = Replace(parameter, "%81H", "%5C%81H")
-'    parameter = Replace(parameter, "%7C", "%5C%7C")
-'    browser_.Get URL_TRANSLATOR & parameter
-'    Dim s As String
-'    Do
-'        DoEvents
-'        s = CStr(browser_.FindElementById(TARGET_ELEMENT_ID).Attribute(OUTPUT_ATTRIBUTE))
-'        s = Replace(s, vbCrLf, "")
-'        browser_.Wait WAIT_MILLISECONDS
-'    Loop Until (Len(s) <> 0)
-'    TranslateDeepL = CStr(browser_.FindElementById(TARGET_ELEMENT_ID).Attribute(OUTPUT_ATTRIBUTE))
-
     Dim parameter As String
     parameter = targetText
     parameter = Replace(parameter, "%2F", "%5C%2F")
@@ -193,7 +187,7 @@ Private Function TranslateDeepL(ByVal targetText As String) As String
     parameter = Replace(parameter, "%81H", "%5C%81H")
     parameter = Replace(parameter, "%7C", "%5C%7C")
     Dim connected As Boolean
-    connected = browser_.Get(URL_TRANSLATOR & parameter)
+    connected = browser_.Get(URL_TRANSLATOR & outputLanguage_ & "/" & parameter)
     If Not connected Then
         TranslateDeepL = "タイムアウトしました。"
         Exit Function
@@ -204,27 +198,29 @@ Private Function TranslateDeepL(ByVal targetText As String) As String
     Do
         DoEvents
         s = CStr(browser_.FindElementById(TARGET_ELEMENT_ID).Attribute(OUTPUT_ATTRIBUTE))
+'        s = browser_.FindElementByClass(TARGET_CLASS)
         s = Replace(s, vbCrLf, "")
         browser_.Wait WAIT_MILLISECONDS
         retryCount = retryCount + 1
     Loop Until (Len(s) <> 0 Or retryCount >= MAX_RETRY_COUNT)
     TranslateDeepL = CStr(browser_.FindElementById(TARGET_ELEMENT_ID).Attribute(OUTPUT_ATTRIBUTE))
+'    TranslateDeepL = browser_.FindElementByClass(TARGET_CLASS)
 
 End Function
 
 Public Sub DrawLine()
 
     Dim row As Long
-    For row = ROW_START To ROW_START + lastRow_ - 1
-        If dstSheet_.Rows(row).RowHeight <= MAX_ROW_HEIGHT - MARGIN_HEIGHT Then
-            dstSheet_.Rows(row).RowHeight = dstSheet_.Rows(row).RowHeight + MARGIN_HEIGHT
+    For row = TranslatorSheet.ROW_START To TranslatorSheet.ROW_START + lastRow_ - 1
+        If dstSheet_.Rows(row).RowHeight <= TranslatorSheet.MAX_ROW_HEIGHT - TranslatorSheet.MARGIN_HEIGHT Then
+            dstSheet_.Rows(row).RowHeight = dstSheet_.Rows(row).RowHeight + TranslatorSheet.MARGIN_HEIGHT
         End If
     Next
-    If (originalTextColumn < translatedTextColumn) Then
-        dstSheet_.Range(dstSheet_.Cells(ROW_TITLE, originalTextColumn), dstSheet_.Cells(lastRow_, translatedTextColumn)).Borders.LineStyle = xlContinuous
+    If (originalTextColumn_ < translatedTextColumn_) Then
+        dstSheet_.Range(dstSheet_.Cells(TranslatorSheet.ROW_TITLE, originalTextColumn_), dstSheet_.Cells(lastRow_, translatedTextColumn_)).Borders.LineStyle = xlContinuous
         Exit Sub
     End If
-    dstSheet_.Range(dstSheet_.Cells(ROW_TITLE, translatedTextColumn), dstSheet_.Cells(lastRow_, originalTextColumn)).Borders.LineStyle = xlContinuous
+    dstSheet_.Range(dstSheet_.Cells(TranslatorSheet.ROW_TITLE, translatedTextColumn_), dstSheet_.Cells(lastRow_, originalTextColumn_)).Borders.LineStyle = xlContinuous
 
 End Sub
 

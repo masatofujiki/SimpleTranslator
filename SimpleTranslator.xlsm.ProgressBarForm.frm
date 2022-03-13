@@ -59,7 +59,7 @@ End Sub
 Public Sub UpdateProgress(ByVal currentRow As Long, ByVal lastRow As Long)
 
     ProgressBar1.Value = currentRow - ROW_OFFSET
-    ProgressLabel = "–|–óÀs’† " & CStr(Int((currentRow - ROW_OFFSET) / (lastRow - ROW_OFFSET) * 100)) & "% Š®—¹"
+    ProgressLabel = "–|–óÀs’† " & CStr(Int((currentRow - TranslatorSheet.ROW_OFFSET) / (lastRow - TranslatorSheet.ROW_OFFSET) * 100)) & "% Š®—¹"
     DoEvents
 
 End Sub

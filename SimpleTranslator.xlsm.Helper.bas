@@ -49,9 +49,9 @@ Public Function FileNameHasNGCharacters(ByVal fileName As String) As Boolean
 
 End Function
 
-Public Function TrimLF(ByVal TARGET As String) As String
+Public Function TrimLF(ByVal Target As String) As String
   
-  Dim temp As String: temp = TARGET
+  Dim temp As String: temp = Target
   Do Until Left(temp, 1) <> vbLf
     temp = Mid(temp, 2)
   Loop
@@ -70,7 +70,7 @@ End Function
 
 Public Function GetLastRow(ByRef ws As Worksheet) As Long
 
-    GetLastRow = ws.Cells(Rows.Count, COL_SRC_ORIGINAL).End(xlUp).row
+    GetLastRow = ws.Cells(Rows.Count, TranslatorSheet.COL_SRC_ORIGINAL).End(xlUp).row
 
 End Function
 
