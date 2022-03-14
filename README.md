@@ -120,5 +120,5 @@ In this case, please refer to [the above article][a] and overwrite the Chrome Dr
 [a]: https://lil.la/archives/3436
 [b]: https://bgt-48.blogspot.com/2019/04/windows10net35.html
 [c]: https://www3.nhk.or.jp/news/html/20210728/k10013161181000.html
-[e]: https://github.com/masatofujiki/SimpleTranslator/archive/refs/tags/v1.1.1.zip
+[e]: https://github.com/masatofujiki/SimpleTranslator/archive/refs/tags/v1.1.2.zip
 [f]: https://github.com/masatofujiki/SimpleTranslator/blob/main/README_JA.md
