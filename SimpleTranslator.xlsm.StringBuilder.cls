@@ -43,15 +43,15 @@ Public Sub Initialize()
 
 End Sub
 
-Public Sub Add(ByVal Value As String)
+Public Sub Add(ByVal value As String)
 
     Dim newLengthIndex As Long
-    newLengthIndex = lengthIndex + CLng(Len(Value))
+    newLengthIndex = lengthIndex + CLng(Len(value))
     Do While (Len(buffer) < newLengthIndex)
         buffer = buffer + VBA.String(BUFFER_BLOCK_SIZE, " ")
     Loop
-    If Len(buffer) > 0 Then Mid(buffer, lengthIndex + 1) = Value
-    lengthIndex = lengthIndex + Len(Value)
+    If Len(buffer) > 0 Then Mid(buffer, lengthIndex + 1) = value
+    lengthIndex = lengthIndex + Len(value)
 
 End Sub
 

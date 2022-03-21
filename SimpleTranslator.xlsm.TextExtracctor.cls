@@ -38,11 +38,12 @@ Private Const WAIT_TIME As Long = 3000
 Private publicationNumber_ As String
 Private currentRow_ As Long
 Private descriptionStartRow_ As Long
-Private browser_ As Selenium.WebDriver
+Private driver_ As WebDriver
+
 
 Public Sub Initialize(ByVal publicationNumber As String)
 
-    Set browser_ = New Selenium.WebDriver
+    Set driver_ = New WebDriver
     publicationNumber_ = publicationNumber
     currentRow_ = 2
 
@@ -50,27 +51,27 @@ End Sub
 
 Public Function IsReady() As Boolean
 
-    Call browser_.AddArgument("--headless --disable-gpu")
-    Call browser_.Start("chrome")
-    Call browser_.Get(URL_GOOGLE_PATENTS)
-    
+'    SafeOpen driver_, Chrome
+    SafeOpenHeadless driver_, Chrome
+    driver_.Navigate URL_GOOGLE_PATENTS
+
     If Not PublicationNumberIsExist Then
-        browser_.Quit
+        driver_.Shutdown
         IsReady = False
         Exit Function
     End If
     IsReady = True
-    
+
 End Function
 
 Public Sub ExtractPatentText()
 
-    Call browser_.Get(URL_GOOGLE_PATENTS_PATENT & StrConv(publicationNumber_, vbUpperCase + vbNarrow))
+    Call driver_.Navigate(URL_GOOGLE_PATENTS_PATENT & StrConv(publicationNumber_, vbUpperCase + vbNarrow))
     Call ExtractTitleOfInvention
     Call ExtractAbstract
     Call ExtractDescription
-    browser_.Quit
-    
+    driver_.Shutdown
+
 End Sub
 
 Private Sub ExtractDescription()
@@ -79,25 +80,24 @@ Private Sub ExtractDescription()
     Call ExtractDescriptionParagraph
     currentRow_ = descriptionStartRow_
     Call ExtractDescriptionLine
-    
+
 End Sub
 
 Private Sub ExtractDescriptionLine()
 
-    Dim myBy As By
-    Set myBy = New By
-    If browser_.IsElementPresent(myBy.Class("description-line")) Then
-        Cells(currentRow_, 1).Value = "Description"
+    If driver_.ExecuteScript("return !!document.getElementsByClassName('description-line')[0]") Then
+        Cells(currentRow_, 1).value = "Description"
         currentRow_ = currentRow_ + 1
-        Dim elements As Selenium.WebElements
-        Set elements = browser_.FindElementsByClass("description-line")
-        Dim element As Selenium.WebElement
-        For Each element In elements
-            Dim paragraphNumber As String: paragraphNumber = ""
-            If element.Attribute("num") <> "0000" Then
-                paragraphNumber = "[" + Replace(CStr(element.Attribute("num")), "p", "") + "]"
+        Dim elements() As WebElement
+        elements = driver_.FindElements(By.ClassName, "description-line")
+        Dim i As Long
+        For i = LBound(elements) To UBound(elements)
+            Dim paragraphNumber As String
+            paragraphNumber = CStr(driver_.ExecuteScript("return (document.getElementsByClassName('description-line')[" & i & "]).getAttribute('num')"))
+            If paragraphNumber <> "0000" Then
+                paragraphNumber = "[" + Replace(CStr(paragraphNumber), "p", "") + "]"
             End If
-            Cells(currentRow_, 1).Value = paragraphNumber + vbLf + element.Text
+            Cells(currentRow_, 1).value = paragraphNumber + vbLf + elements(i).GetText
             currentRow_ = currentRow_ + 1
         Next
     End If
@@ -106,16 +106,14 @@ End Sub
 
 Private Sub ExtractDescriptionParagraph()
 
-    Dim myBy As By
-    Set myBy = New By
-    If browser_.IsElementPresent(myBy.Class("description-paragraph")) Then
-        Cells(currentRow_, 1).Value = "Description"
+    If driver_.ExecuteScript("return !!document.getElementsByClassName('description-paragraph')[0]") Then
+        Cells(currentRow_, 1).value = "Description"
         currentRow_ = currentRow_ + 1
-        Dim elements As Selenium.WebElements
-        Set elements = browser_.FindElementsByClass("description-paragraph")
-        Dim element As Selenium.WebElement
-        For Each element In elements
-            Cells(currentRow_, 1).Value = element.Text
+        Dim elements() As WebElement
+        elements = driver_.FindElements(By.ClassName, "description-paragraph")
+        Dim i As Long
+        For i = LBound(elements) To UBound(elements)
+            Cells(currentRow_, 1).value = elements(i).GetText
             currentRow_ = currentRow_ + 1
         Next
     End If
@@ -124,14 +122,12 @@ End Sub
 
 Private Sub ExtractAbstract()
 
-    Dim myBy As By
-    Set myBy = New By
-    If browser_.IsElementPresent(myBy.Class("abstract")) Then
-        Cells(currentRow_, 1).Value = "Abstract"
+    If driver_.ExecuteScript("return !!document.getElementsByClassName('abstract')[0]") Then
+        Cells(currentRow_, 1).value = "Abstract"
         currentRow_ = currentRow_ + 1
-        Dim element As WebElement
-        Set element = browser_.FindElementByClass("abstract")
-        Cells(currentRow_, 1).Value = element.Text
+        Dim abstract As String
+        abstract = driver_.ExecuteScript("return document.getElementsByClassName('abstract')[0]").GetText
+        Cells(currentRow_, 1).value = abstract
         currentRow_ = currentRow_ + 1
     End If
     
@@ -139,26 +135,26 @@ End Sub
 
 Private Sub ExtractTitleOfInvention()
 
-    Dim elements As WebElements
-    Set elements = browser_.FindElementsByTag("h1")
-    Cells(currentRow_, 1).Value = elements(2).Text
-    currentRow_ = currentRow_ + 1
-
+    If driver_.ExecuteScript("return !!document.getElementsByTagName('h1')[1]") Then
+        Cells(currentRow_, 1).value = driver_.ExecuteScript("return document.getElementsByTagName('h1')[1]").GetText
+        currentRow_ = currentRow_ + 1
+    End If
+    
 End Sub
 
 Private Function PublicationNumberIsExist() As Boolean
 
-    Dim element As Selenium.WebElement
-    Set element = browser_.FindElementById("searchInput")
-    Call element.SendKeys(publicationNumber_)
-    Dim sendKey As Selenium.Keys
-    Set sendKey = New Selenium.Keys
-    Call element.SendKeys(sendKey.Enter)
-    Call browser_.Wait(WAIT_TIME)
-    If browser_.Url = URL_GOOGLE_PATENTS Then
+    Dim element As WebElement
+    Set element = driver_.FindElement(By.ID, "searchInput")
+    element.SetValue publicationNumber_
+    driver_.FindElement(By.ID, "searchButton").Click
+    Call Sleep(WAIT_TIME)
+    Dim currentUrl As String
+    currentUrl = driver_.ExecuteScript("return location.href")
+    If currentUrl = URL_GOOGLE_PATENTS Then
         PublicationNumberIsExist = False
         Exit Function
     End If
     PublicationNumberIsExist = True
-    
+
 End Function

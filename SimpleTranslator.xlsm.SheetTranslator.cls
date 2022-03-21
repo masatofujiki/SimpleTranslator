@@ -34,7 +34,6 @@ Option Explicit
 'Private Const TARGET_CLASS As String = "trans-sentence ng-star-inserted inmt-on"
 Private Const TARGET_ELEMENT_ID As String = "target-dummydiv"
 Private Const OUTPUT_ATTRIBUTE As String = "textContent"
-'Private Const URL_TRANSLATOR As String = "https://www.deepl.com/ja/translator#en/ja/"
 Private Const URL_TRANSLATOR As String = "https://www.deepl.com/ja/translator#en/"
 'Private Const URL_TRANSLATOR As String = "https://miraitranslate.com/trial/#ko/ja/"
 Private Const WINDOW_ZOOM As Long = 60
@@ -49,7 +48,7 @@ Private lastRow_ As Long
 Private currentRow_ As Long
 Private startTime_ As Double
 Private stopTime_ As Double
-Private browser_ As Selenium.WebDriver
+Private driver_ As WebDriver
 Private targets_ As Collection
 Private originalTextColumn_ As Long
 Private translatedTextColumn_ As Long
@@ -65,12 +64,12 @@ Public Sub Initialize(ByRef dstSheet As Worksheet)
     Set dstSheet_ = dstSheet
     lastRow_ = GetLastRow(srcSheet_)
     currentRow_ = 2
-    
+
     Set outputCombobox_ = ThisWorkbook.Worksheets(1).OutputComboBox
     outputLanguage_ = outputCombobox_.List(outputCombobox_.ListIndex, COL_OUTPUT_LANGUAGE)
     originalTextTitle_ = outputCombobox_.List(outputCombobox_.ListIndex, COL_ORIGINAL_TEXT)
     translatedTextTitle_ = outputCombobox_.List(outputCombobox_.ListIndex, COL_TRANSLATED_TEXT)
-    If ThisWorkbook.Worksheets(1).LeftOriginalTextRadio.Value Then
+    If ThisWorkbook.Worksheets(1).LeftOriginalTextRadio.value Then
         originalTextColumn_ = 1
         translatedTextColumn_ = 2
     Else
@@ -111,19 +110,19 @@ Private Sub FormatTargetSheet()
         .VerticalAlignment = xlCenter
         .HorizontalAlignment = xlLeft
     End With
-    
+
     With dstSheet_.Cells(TranslatorSheet.ROW_TITLE, originalTextColumn_)
-        .Value = originalTextTitle_
+        .value = originalTextTitle_
         .HorizontalAlignment = xlCenter
         .RowHeight = 50
     End With
-    
+
     With dstSheet_.Cells(TranslatorSheet.ROW_TITLE, translatedTextColumn_)
-        .Value = translatedTextTitle_
+        .value = translatedTextTitle_
         .HorizontalAlignment = xlCenter
         .RowHeight = 50
     End With
-    
+
     ActiveWindow.Zoom = WINDOW_ZOOM
     With ActiveSheet.PageSetup
         .Zoom = PAGE_ZOOM
@@ -143,18 +142,17 @@ End Sub
 Public Sub TransLateToSheet()
 
     Do
-        Set browser_ = New Selenium.WebDriver
-        browser_.AddArgument "--headless --disable-gpu"
-        browser_.Start "chrome"
+        Set driver_ = New WebDriver
+        SafeOpenHeadless driver_, Chrome
         startTime_ = Timer
         Do While (currentRow_ <= lastRow_)
             Dim targetText As String
-            targetText = Trim(WorksheetFunction.EncodeURL(dstSheet_.Cells(currentRow_, originalTextColumn_).Value))
+            targetText = Trim(WorksheetFunction.EncodeURL(dstSheet_.Cells(currentRow_, originalTextColumn_).value))
             If Len(Trim(targetText)) <> 0 Then
                 Dim myTarget As Target: Set myTarget = New Target
-                Call myTarget.Initialize(dstSheet_.Cells(currentRow_, originalTextColumn_).Value, CStr(TranslateDeepL(targetText)))
+                Call myTarget.Initialize(dstSheet_.Cells(currentRow_, originalTextColumn_).value, CStr(TranslateDeepL(targetText)))
                 targets_.Add myTarget
-                dstSheet_.Cells(currentRow_, translatedTextColumn_).Value = myTarget.translatedText_
+                dstSheet_.Cells(currentRow_, translatedTextColumn_).value = myTarget.translatedText_
             End If
             currentRow_ = currentRow_ + 1
             stopTime_ = Timer
@@ -163,7 +161,7 @@ Public Sub TransLateToSheet()
             End If
         Loop
 Continue:
-        browser_.Quit
+        driver_.Shutdown
         Debug.Print ("経過秒：" & stopTime_ - startTime_)
         Debug.Print ("完了行：" & currentRow_ - TranslatorSheet.ROW_START)
     Loop While (currentRow_ <= lastRow_)
@@ -186,25 +184,21 @@ Private Function TranslateDeepL(ByVal targetText As String) As String
     parameter = Replace(parameter, "%81G", "%5C%81G")
     parameter = Replace(parameter, "%81H", "%5C%81H")
     parameter = Replace(parameter, "%7C", "%5C%7C")
-    Dim connected As Boolean
-    connected = browser_.Get(URL_TRANSLATOR & outputLanguage_ & "/" & parameter)
-    If Not connected Then
-        TranslateDeepL = "タイムアウトしました。"
-        Exit Function
-    End If
+    Call driver_.Navigate(URL_TRANSLATOR & outputLanguage_ & "/" & parameter)
     Dim retryCount As Long
     retryCount = 0
     Dim s As String
     Do
-        DoEvents
-        s = CStr(browser_.FindElementById(TARGET_ELEMENT_ID).Attribute(OUTPUT_ATTRIBUTE))
-'        s = browser_.FindElementByClass(TARGET_CLASS)
+        s = CStr(Trim(driver_.ExecuteScript("return document.getElementById('target-dummydiv').textContent")))
         s = Replace(s, vbCrLf, "")
-        browser_.Wait WAIT_MILLISECONDS
+        s = Replace(s, vbCr, "")
+        s = Replace(s, vbLf, "")
+        s = Replace(s, " ", "")
+        s = Replace(s, "　", "")
+        Call Sleep(WAIT_MILLISECONDS)
         retryCount = retryCount + 1
     Loop Until (Len(s) <> 0 Or retryCount >= MAX_RETRY_COUNT)
-    TranslateDeepL = CStr(browser_.FindElementById(TARGET_ELEMENT_ID).Attribute(OUTPUT_ATTRIBUTE))
-'    TranslateDeepL = browser_.FindElementByClass(TARGET_CLASS)
+    TranslateDeepL = CStr(driver_.ExecuteScript("return document.getElementById('target-dummydiv').textContent"))
 
 End Function
 

@@ -80,7 +80,7 @@ Private Sub ShrinkText(ByVal splitPattern As String, ByVal replaceToken As Strin
     srcSheet_.Range(srcSheet_.Cells(LBound(afterDescriptions) + TranslatorSheet.ROW_START, targetCol_), srcSheet_.Cells(UBound(afterDescriptions) + TranslatorSheet.ROW_START, targetCol_)) = cellData
     srcSheet_.Rows(CStr(TranslatorSheet.ROW_START) + ":" + CStr(UBound(afterDescriptions) + TranslatorSheet.ROW_START)).AutoFit
     
-    If srcSheet_.Cells(TranslatorSheet.ROW_START, TranslatorSheet.COL_START).Value = "" Then
+    If srcSheet_.Cells(TranslatorSheet.ROW_START, TranslatorSheet.COL_START).value = "" Then
         srcSheet_.Rows(TranslatorSheet.ROW_START).Delete
     End If
 
@@ -95,7 +95,7 @@ Public Sub FormatPatentText()
     
     If HasOneText() Then
         allText = TrimLF(srcSheet_.Cells(TranslatorSheet.ROW_START, 1))
-        srcSheet_.Cells(TranslatorSheet.ROW_START, 1).Value = allText
+        srcSheet_.Cells(TranslatorSheet.ROW_START, 1).value = allText
         Rows(CStr(TranslatorSheet.ROW_START) + ":" + CStr(TranslatorSheet.ROW_START)).AutoFit
         Exit Sub
     End If
@@ -134,7 +134,7 @@ Public Sub FormatText()
     
     If HasOneText() Then
         allText = TrimLF(srcSheet_.Cells(TranslatorSheet.ROW_START, 1))
-        srcSheet_.Cells(TranslatorSheet.ROW_START, 1).Value = allText
+        srcSheet_.Cells(TranslatorSheet.ROW_START, 1).value = allText
         Rows(CStr(TranslatorSheet.ROW_START) + ":" + CStr(TranslatorSheet.ROW_START)).AutoFit
         Exit Sub
     End If

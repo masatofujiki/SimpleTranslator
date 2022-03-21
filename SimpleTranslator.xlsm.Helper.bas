@@ -23,11 +23,13 @@ Attribute VB_Name = "Helper"
 
 Option Explicit
 
+Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
+
 Public Function GetFilePath() As String
 
     Dim fileName As Variant
-    fileName = Application.GetSaveAsFilename(InitialFileName:=Application.ThisWorkbook.Path & "\" & _
-                                             ThisWorkbook.Worksheets(1).PublicationNumberTextBox.Text, FileFilter:="HTMLファイル, *.html")
+    fileName = Application.GetSaveAsFilename(InitialFileName:=Application.ThisWorkbook.path & "\" & _
+                                             ThisWorkbook.Worksheets(1).PublicationNumberTextBox.text, FileFilter:="HTMLファイル, *.html")
     If VarType(fileName) = vbBoolean Then
         GetFilePath = ""
         Exit Function

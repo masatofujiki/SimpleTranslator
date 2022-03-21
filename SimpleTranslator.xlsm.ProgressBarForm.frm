@@ -42,7 +42,7 @@ Public ProgressIsCancel As Boolean
 Public Sub InitializeProgress(ByVal currentRow As Long, ByVal lastRow As Long)
 
     ProgressIsCancel = False
-    ProgressBar1.Value = 0
+    ProgressBar1.value = 0
     ProgressBar1.Min = 0
     ProgressBar1.Max = lastRow
     ProgressLabel.Caption = "ñ|ñÛé¿çsíÜ"
@@ -58,7 +58,7 @@ End Sub
 
 Public Sub UpdateProgress(ByVal currentRow As Long, ByVal lastRow As Long)
 
-    ProgressBar1.Value = currentRow - ROW_OFFSET
+    ProgressBar1.value = currentRow - ROW_OFFSET
     ProgressLabel = "ñ|ñÛé¿çsíÜ " & CStr(Int((currentRow - TranslatorSheet.ROW_OFFSET) / (lastRow - TranslatorSheet.ROW_OFFSET) * 100)) & "% äÆóπ"
     DoEvents
 

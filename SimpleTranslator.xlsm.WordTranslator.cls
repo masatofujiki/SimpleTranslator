@@ -37,10 +37,11 @@ Private Const OUTPUT_ATTRIBUTE As String = "textContent"
 Private Const URL_TRANSLATOR As String = "https://www.deepl.com/ja/translator#en/"
 Private Const WAIT_MILLISECONDS As Long = 500
 Private Const SECOND_TO_RESTART As Long = 300
+Private Const MAX_RETRY_COUNT As Long = 100
 
 Private startTime_ As Double
 Private stopTime_ As Double
-Private browser_ As Selenium.WebDriver
+Private driver_ As WebDriver
 Private originals_ As Collection
 Private fileName_ As String
 Private wordApp_ As Word.Application
@@ -70,14 +71,14 @@ Public Sub CreateWordParagraphs()
         Set original = New WordOriginal
         Dim fn As String
         Dim originalText As String
-        originalText = CleanChar(para.Range.Text)
+        originalText = CleanChar(para.Range.text)
 '        fn = "UD デジタル 教科書体 N-R"
         fn = "BIZ UDP明朝 Medium"
 '        Debug.Print originalText
         Call original.Initialize(originalText, "", para.LeftIndent, para.RightIndent, para.Alignment, fn, para.Range.Font.Size, para.Range.Style)
         Call originals_.Add(original)
     Next
-    
+
     wordDoc_.Close SaveChanges:=False
     Set wordDoc_ = Nothing
     wordApp_.Quit
@@ -87,7 +88,7 @@ Public Sub CreateWordParagraphs()
     Dim row As Long
     row = 2
     For Each created In originals_
-        Cells(row, 1).Value = created.originalText_
+        Cells(row, 1).value = created.originalText_
 '        Cells(row, 2).Value = created.originalStyle_
         row = row + 1
     Next
@@ -100,9 +101,8 @@ Public Sub CreateTranslatedPDF()
     Call ProgressBarForm.Show(vbModeless)
     DoEvents
     Do
-        Set browser_ = New Selenium.WebDriver
-        browser_.AddArgument "--headless --disable-gpu"
-        browser_.Start "chrome"
+        Set driver_ = New WebDriver
+        SafeOpenHeadless driver_, Chrome
         startTime_ = Timer
         Do While (currentParagraph_ <= lastParagraph_)
             Dim original As WordOriginal
@@ -125,7 +125,7 @@ Public Sub CreateTranslatedPDF()
             End If
         Loop
 Continue:
-        browser_.Quit
+        driver_.Shutdown
         Debug.Print ("経過秒：" & stopTime_ - startTime_)
         Debug.Print ("完了行：" & currentParagraph_)
     Loop While (currentParagraph_ <= lastParagraph_ And ProgressBarForm.ProgressIsCancel = False)
@@ -149,15 +149,22 @@ Private Function TranslateDeepL(ByVal targetText As String) As String
     parameter = Replace(parameter, "%81G", "%5C%81G")
     parameter = Replace(parameter, "%81H", "%5C%81H")
     parameter = Replace(parameter, "%7C", "%5C%7C")
-    browser_.Get URL_TRANSLATOR & outputLanguage_ & "/" & parameter
+    Call driver_.Navigate(URL_TRANSLATOR & outputLanguage_ & "/" & parameter)
+    Dim retryCount As Long
+    retryCount = 0
     Dim s As String
     Do
-        DoEvents
-        s = CStr(browser_.FindElementById(TARGET_ELEMENT_ID).Attribute(OUTPUT_ATTRIBUTE))
+        s = CStr(Trim(driver_.ExecuteScript("return document.getElementById('target-dummydiv').textContent")))
         s = Replace(s, vbCrLf, "")
-        browser_.Wait WAIT_MILLISECONDS
-    Loop Until (Len(s) <> 0)
-    TranslateDeepL = CStr(browser_.FindElementById(TARGET_ELEMENT_ID).Attribute(OUTPUT_ATTRIBUTE))
+        s = Replace(s, vbCr, "")
+        s = Replace(s, vbLf, "")
+        s = Replace(s, " ", "")
+        s = Replace(s, "　", "")
+        Call Sleep(WAIT_MILLISECONDS)
+        retryCount = retryCount + 1
+    Loop Until (Len(s) <> 0 Or retryCount >= MAX_RETRY_COUNT)
+    TranslateDeepL = CStr(driver_.ExecuteScript("return document.getElementById('target-dummydiv').textContent"))
+
 
 End Function
 
@@ -173,12 +180,12 @@ Public Sub CreatePDF()
         If wordDoc_.Paragraphs(index).Range.Style = "TableGrid" Then
             GoTo Continue
         End If
-        If InStr(wordDoc_.Paragraphs(index).Range.Text, "/") = 1 Then
+        If InStr(wordDoc_.Paragraphs(index).Range.text, "/") = 1 Then
             Debug.Print translated.translatedText_
             GoTo Continue
         End If
         If Len(translated.translatedText_) <> 0 And (translated.translatedText_ <> "/") Then
-            wordDoc_.Paragraphs(index).Range.Text = original.translatedText_
+            wordDoc_.Paragraphs(index).Range.text = original.translatedText_
             wordDoc_.Paragraphs(index).LeftIndent = original.originalLeftIndent_
             wordDoc_.Paragraphs(index).RightIndent = original.originalRightIndent_
             wordDoc_.Paragraphs(index).Alignment = original.originalAlignment_
@@ -187,6 +194,6 @@ Public Sub CreatePDF()
         End If
 Continue:
     Next
-    
+
 End Sub
 

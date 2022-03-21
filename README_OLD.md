@@ -1,12 +1,12 @@
 # SimpleTranslator(English translation tool)
 
-[日本語 README はこちら][a]
-
-[Click here for Selenium Basic Version][g]
+[日本語 README はこちら][f]
 
 ![d](img/jobs02.gif)
 
-I created a tool to easily translate a foreign language pasted into Excel with Chrome Driver and DeepL. No special configuration is required, and no update of Chrome Driver is needed.
+I created a tool that can easily translate foreign words pasted into Excel using Selenium Basic and DeepL.
+
+Setting up the environment is not easy, but once you are done setting up the environment, other than updating the Chrome Driver, there is no need to set up.
 
 ## ■ Background
 
@@ -26,17 +26,29 @@ The idea is to provide a translation tool that can compare the translated text w
 
 ### OS
 
-- Microsoft Windows 10 or Microsoft Windows 11
+- Microsoft Windows 10
 
 ### Software
 
 - Google Chrome
 - Microsoft Excel 2016 or Microsoft Excel 2019
+- Selenium Basic
 - Chrome Driver
+
+## ■ Setting up the environment to run Selenium Basic
+
+If you have Selenium Basic installed and running, you do not need to do the following. Please proceed to the next step.
+
+1. [Open the tutorial page on how to install SeleniumBasic and perform web scraping from Excel (VBA)][a].
+2. Download and install Selenium Basic referring to [the above article][a].
+3. Download the Chrome Driver by referring to [the article above][a], and then copy and overwrite the downloaded Chrome Driver to the folder where you installed Selenium Basic.
+4. Check the operation of Selenium Basic referring to [the above article][a].
+5. If the error occurs because ".Net Fremework 3.5" is not installed, refer to the link at [the bottom of the above article][a] to install.
+6. If you are unable to install ".Net Fremework 3.5" at this point, perform the following step 7. 7.[How to install .NET3.5 on Windows 10! Install .Net Fremework 3.5 by referring to the page How to Install][b] . Net Fremework 3.5. Make sure to revert the changed registry values.
 
 ## ■ How to use Simple Translator
 
-1. [1.SimpleTranslator zip file][b] ← Click to download.
+1. [1.SimpleTranslator zip file][e] ← Click to download.
 
 2. Unzip the zip file downloaded in step 1 above, and open SimpleTranslator.xlsm in the SimpleTranslator folder.
 
@@ -88,15 +100,25 @@ The idea is to provide a translation tool that can compare the translated text w
 
 14. The translation results will be created in HTML format in a directory in the same location as the application.
 
+## ■ Caution
+
+If Google Chrome is updated, Chrome Driver will no longer work.
+
+In this case, please refer to [the above article][a] and overwrite the Chrome Driver that matches the version of Google Chrome.
+
+## ■ Download page
+
+1. [Selenium Basic](https://florentbr.github.io/SeleniumBasic/)
+2. [Chrome Driver](https://chromedriver.chromium.org/downloads)
+
 ## ■ Reference page
 
-1. [sample][c]
-2. [Scraping with Excel VBA without SeleniumBasic][e]
-3. [[Selenium] I want to update WebDriver automatically even with VBA!][f]
+1. [tutorial on how to install SeleniumBasic and perform web scraping from Excel (VBA)][a]
+2. [How to install .NET3.5 on Windows 10!][b]
+3. [sample][c]
 
-[a]: https://github.com/masatofujiki/SimpleTranslator/blob/main/README_JA.md
-[b]: https://github.com/masatofujiki/SimpleTranslator/archive/refs/tags/v1.2.0.zip
+[a]: https://lil.la/archives/3436
+[b]: https://bgt-48.blogspot.com/2019/04/windows10net35.html
 [c]: https://www3.nhk.or.jp/news/html/20210728/k10013161181000.html
-[e]: https://qiita.com/uezo/items/66e20b064ffd5f239b9a
-[f]: https://qiita.com/yamato1413/items/4b982aee46f28358fd39
-[g]: https://github.com/masatofujiki/SimpleTranslator/blob/main/README_OLD.md
+[e]: https://github.com/masatofujiki/SimpleTranslator/archive/refs/tags/v1.1.2.zip
+[f]: https://github.com/masatofujiki/SimpleTranslator/blob/main/README_JA.md

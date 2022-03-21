@@ -56,14 +56,14 @@ End Sub
 
 Private Sub ExtractButton_Click()
 
-    If Len(PublicationNumberTextBox.Text) = 0 Then
+    If Len(PublicationNumberTextBox.text) = 0 Then
         MsgBox "公開番号が空です。"
         Exit Sub
     End If
 
     Dim extractor As TextExtracctor
     Set extractor = New TextExtracctor
-    Call extractor.Initialize(PublicationNumberTextBox.Text)
+    Call extractor.Initialize(PublicationNumberTextBox.text)
     If Not extractor.IsReady Then
         MsgBox "願番が存在しません。"
         Exit Sub
@@ -187,18 +187,18 @@ Private Sub PDFSelectionButton_Click()
     myFileDialog.Title = "翻訳するPDFを選択してください。"
     myFileDialog.Filters.Clear
     myFileDialog.Filters.Add "すべてのPDFファイル", "*.pdf"
-    
+
     If myFileDialog.Show <> -1 Then
         myFileDialog.Filters.Clear
         Exit Sub
     End If
-        
+
     Call DeleteColumns
-    
+
     Dim myFilePath As String
     myFilePath = myFileDialog.SelectedItems(1)
     myFileDialog.Filters.Clear
-    
+
     Dim translator As WordTranslator
     Set translator = New WordTranslator
     Call translator.Initialize(myFilePath, OutputComboBox.List(OutputComboBox.ListIndex, COL_OUTPUT_LANGUAGE))
@@ -208,21 +208,21 @@ End Sub
 '
 Private Sub PublicationNumberTextBox_KeyDown(ByVal KeyCode As MSForms.ReturnInteger, ByVal Shift As Integer)
 
-    If KeyCode = vbKeyReturn Then
-        If Len(PublicationNumberTextBox.Text) = 0 Then
-            MsgBox "公開番号が空です。"
-            Exit Sub
-        End If
-        Dim extractor As TextExtracctor
-        Set extractor = New TextExtracctor
-        Call extractor.Initialize(PublicationNumberTextBox.Text)
-        If Not extractor.IsReady Then
-            MsgBox "願番が存在しません。"
-            Exit Sub
-        End If
-        Call DeleteColumns
-        Call extractor.ExtractPatentText
-    End If
+'    If KeyCode = vbKeyReturn Then
+'        If Len(PublicationNumberTextBox.text) = 0 Then
+'            MsgBox "公開番号が空です。"
+'            Exit Sub
+'        End If
+'        Dim extractor As TextExtracctor
+'        Set extractor = New TextExtracctor
+'        Call extractor.Initialize(PublicationNumberTextBox.text)
+'        If Not extractor.IsReady Then
+'            MsgBox "願番が存在しません。"
+'            Exit Sub
+'        End If
+'        Call DeleteColumns
+'        Call extractor.ExtractPatentText
+'    End If
 
 End Sub
 
@@ -267,6 +267,9 @@ Private Sub TranslateToHtmlButton_Click()
         
     Call translator.TransLateToHtml
     Call translator.CreateHtml
+    If Len(PublicationNumberTextBox.text) > 0 Then
+        PublicationNumberTextBox.text = ""
+    End If
 
     Application.ScreenUpdating = True
 

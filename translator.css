@@ -17,14 +17,14 @@ th.first {
     width: 50%;              /* 幅指定 */
     text-align: center;           /* 文字の揃え位置指定 */
     color: #FFF;
-    background: #39F;
+    background: #44546A;
 }
 
 th.second {
     width: 50%;              /* 幅指定 */
     text-align: center;           /* 文字の揃え位置指定 */
     color: #FFF;
-    background: #39F;
+    background: #44546A;
 }
 
 td {

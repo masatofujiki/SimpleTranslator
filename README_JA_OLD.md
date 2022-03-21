@@ -1,12 +1,10 @@
 # SimpleTranslator(英語翻訳ツール)
 
-[English README is here.][a]
-
-[Selenium Basic 版はこちらをクリック][g]
+[English README is here.][f]
 
 ![d](img/jobs01.gif)
 
-Excel に貼り付けた外国語を Chrome Driver と DeepL でお手軽に翻訳してくれるツールを作りました。特別な環境設定は不要で Chrome Driver の更新も不要です。
+Excel に貼り付けた外国語を Selenium Basic と DeepL でお手軽に翻訳してくれるツールを作りました。環境設定はお手軽ではないですが、一度、環境設定を済ませば Chrome Driver の更新以外は設定不要です。
 
 ## ■ 背景
 
@@ -24,17 +22,30 @@ Excel に貼り付けた外国語を Chrome Driver と DeepL でお手軽に翻�
 
 ### OS
 
-- Microsoft Windows 10 または Microsoft Windows 11
+- Microsoft Windows 10
 
 ### ソフトウェア
 
 - Google Chrome
-- Microsoft Excel 2016 または Microsoft Excel 2019（Excel 2013、Excel 2021 は未確認）
+- Microsoft Excel 2016 または Microsoft Excel 2019
+- Selenium Basic
 - Chrome Driver
+
+## ■Selenium Basic を動作させるまでの環境設定
+
+Selenium Basic がインストールされ、動作している環境なら以下は必要ありません。次に進んでください。
+
+1. [SeleniumBasic をインストールして Excel(VBA)から Web スクレイピングを行うまでのチュートリアル][a]のページを開きます。
+2. [上記記事][a]を参照して Selenium Basic をダウンロード＆インストールします。
+3. [上記記事][a]を参照して Chrome Driver のダウンロードし、ダウンロードした Chrome Driver を Selenium Basic をインストールしたフォルダにコピー＆上書きします。
+4. [上記記事][a]を参照して Selenium Basic の動作確認を行います。
+5. 「.Net Fremework 3.5」がインストールされていないために起こるエラーが発生したときは、[上記記事][a]の一番下のリンクを参照して「.Net Fremework 3.5」をインストールします。
+6. ここで「.Net Fremework 3.5」をインストールできないときは次の 7.の手順を実行します。
+7. [Windows10 に.NET3.5 をインストールする方法！][b]のページを参照して「.Net Fremework 3.5」をインストールします。変更したレジストリの値を戻すまできっちりやってください。
 
 ## ■Simple Translator の使い方
 
-1. [SimpleTranslator の zip ファイル][b]← クリックしてダウンロードします。
+1. [SimpleTranslator の zip ファイル][e]← クリックしてダウンロードします。
 2. 上記 1.でダウンロードした zip ファイルを解凍し、SimpleTranslator フォルダ内の SimpleTranslator.xlsm を開きます。
 3. 言語選択コンボボックスを選択します。
 
@@ -160,15 +171,25 @@ Excel に貼り付けた外国語を Chrome Driver と DeepL でお手軽に翻�
 
 14. 翻訳結果は HTML の形式でアプリケーションと同じ場所のディレクトリに作成されます。
 
+## ■ 注意
+
+※Google Chrome がアップデートされると Chrome Driver が動かなくなります。
+
+※このときは[上記記事][a]を参照して Google Chrome のバージョンに合わせた Chrome Driver を上書き更新してください。
+
+## ■ ダウンロードページ
+
+1. [Selenium Basic](https://florentbr.github.io/SeleniumBasic/)
+2. [Chrome Driver](https://chromedriver.chromium.org/downloads)
+
 ## ■ 参考ページ
 
-1. [サンプル][a]
-2. [Excel VBA で SeleniumBasic を使わずにスクレイピングする][e]
-3. [【Selenium】VBA でも WebDriver を自動で更新したい！][f]
+1. [SeleniumBasic をインストールして Excel(VBA)から Web スクレイピングを行うまでのチュートリアル][a]
+2. [Windows10 に.NET3.5 をインストールする方法！][b]
+3. [サンプル][c]
 
-[a]: https://github.com/masatofujiki/SimpleTranslator/blob/main/README.md
-[b]: https://github.com/masatofujiki/SimpleTranslator/archive/refs/tags/v1.2.0.zip
+[a]: https://lil.la/archives/3436
+[b]: https://bgt-48.blogspot.com/2019/04/windows10net35.html
 [c]: https://www3.nhk.or.jp/nhkworld/en/news/backstories/1622/
-[e]: https://qiita.com/uezo/items/66e20b064ffd5f239b9a
-[f]: https://qiita.com/yamato1413/items/4b982aee46f28358fd39
-[g]: https://github.com/masatofujiki/SimpleTranslator/blob/main/README_JA_OLD.md
+[e]: https://github.com/masatofujiki/SimpleTranslator/archive/refs/tags/v1.1.2.zip
+[f]: https://github.com/masatofujiki/SimpleTranslator/blob/main/README.md

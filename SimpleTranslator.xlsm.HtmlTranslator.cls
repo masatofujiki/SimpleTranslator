@@ -33,7 +33,6 @@ Option Explicit
 
 Private Const TARGET_ELEMENT_ID As String = "target-dummydiv"
 Private Const OUTPUT_ATTRIBUTE As String = "textContent"
-'Private Const URL_TRANSLATOR As String = "https://www.deepl.com/ja/translator#en/ja/"
 Private Const URL_TRANSLATOR As String = "https://www.deepl.com/ja/translator#en/"
 Private Const WAIT_MILLISECONDS As Long = 500
 Private Const SECOND_TO_RESTART As Long = 300
@@ -45,7 +44,7 @@ Private lastRow_ As Long
 Private currentRow_ As Long
 Private startTime_ As Double
 Private stopTime_ As Double
-Private browser_ As Selenium.WebDriver
+Private driver_ As WebDriver
 Private targets_ As Collection
 Private fileName_ As String
 Private originalTextColumn As Long
@@ -65,7 +64,7 @@ Public Sub Initialize(ByVal fileName As String)
     outputLanguage_ = outputCombobox_.List(outputCombobox_.ListIndex, COL_OUTPUT_LANGUAGE)
     originalTextTitle_ = outputCombobox_.List(outputCombobox_.ListIndex, COL_ORIGINAL_TEXT)
     translatedTextTitle_ = outputCombobox_.List(outputCombobox_.ListIndex, COL_TRANSLATED_TEXT)
-    If ThisWorkbook.Worksheets(1).LeftOriginalTextRadio.Value Then
+    If ThisWorkbook.Worksheets(1).LeftOriginalTextRadio.value Then
         originalTextColumn = 1
         translatedTextColumn = 2
     Else
@@ -88,17 +87,16 @@ Public Sub TransLateToHtml()
     Call ProgressBarForm.Show(vbModeless)
     DoEvents
     Do
-        Set browser_ = New Selenium.WebDriver
-        browser_.AddArgument "--headless --disable-gpu"
-        browser_.Start "chrome"
+        Set driver_ = New WebDriver
+        SafeOpenHeadless driver_, Chrome
         startTime_ = Timer
         Do While (currentRow_ <= lastRow_)
             Dim targetText As String
-            targetText = Trim(WorksheetFunction.EncodeURL(srcSheet_.Cells(currentRow_, TranslatorSheet.COL_SRC_ORIGINAL).Value))
+            targetText = Trim(WorksheetFunction.EncodeURL(srcSheet_.Cells(currentRow_, TranslatorSheet.COL_SRC_ORIGINAL).value))
             If Len(Trim(targetText)) <> 0 Then
                 Dim myTarget As Target: Set myTarget = New Target
                 Dim src As String
-                src = srcSheet_.Cells(currentRow_, TranslatorSheet.COL_SRC_ORIGINAL).Value
+                src = srcSheet_.Cells(currentRow_, TranslatorSheet.COL_SRC_ORIGINAL).value
                 Dim dst As String
                 dst = TranslateDeepL(targetText)
                 Call myTarget.Initialize(src, dst)
@@ -116,7 +114,7 @@ Public Sub TransLateToHtml()
             End If
         Loop
 Continue:
-        browser_.Quit
+        driver_.Shutdown
         Debug.Print ("経過秒：" & stopTime_ - startTime_)
         Debug.Print ("完了行：" & currentRow_ - TranslatorSheet.ROW_START)
     Loop While (currentRow_ <= lastRow_ And ProgressBarForm.ProgressIsCancel = False)
@@ -140,23 +138,21 @@ Private Function TranslateDeepL(ByVal targetText As String) As String
     parameter = Replace(parameter, "%81G", "%5C%81G")
     parameter = Replace(parameter, "%81H", "%5C%81H")
     parameter = Replace(parameter, "%7C", "%5C%7C")
-    Dim connected As Boolean
-    connected = browser_.Get(URL_TRANSLATOR & outputLanguage_ & "/" & parameter)
-    If Not connected Then
-        TranslateDeepL = "タイムアウトしました。"
-        Exit Function
-    End If
+    Call driver_.Navigate(URL_TRANSLATOR & outputLanguage_ & "/" & parameter)
     Dim retryCount As Long
     retryCount = 0
     Dim s As String
     Do
-'        DoEvents
-        s = CStr(browser_.FindElementById(TARGET_ELEMENT_ID).Attribute(OUTPUT_ATTRIBUTE))
+        s = CStr(Trim(driver_.ExecuteScript("return document.getElementById('target-dummydiv').textContent")))
         s = Replace(s, vbCrLf, "")
-        browser_.Wait WAIT_MILLISECONDS
+        s = Replace(s, vbCr, "")
+        s = Replace(s, vbLf, "")
+        s = Replace(s, " ", "")
+        s = Replace(s, "　", "")
+        Call Sleep(WAIT_MILLISECONDS)
         retryCount = retryCount + 1
     Loop Until (Len(s) <> 0 Or retryCount >= MAX_RETRY_COUNT)
-    TranslateDeepL = CStr(browser_.FindElementById(TARGET_ELEMENT_ID).Attribute(OUTPUT_ATTRIBUTE))
+    TranslateDeepL = CStr(driver_.ExecuteScript("return document.getElementById('target-dummydiv').textContent"))
 
 End Function
 
