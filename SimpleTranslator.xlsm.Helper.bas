@@ -25,6 +25,8 @@ Option Explicit
 
 Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 
+Private Const VERSION_OF_EXCEL2010 As Long = 14
+
 Public Function GetFilePath() As String
 
     Dim fileName As Variant
@@ -51,9 +53,9 @@ Public Function FileNameHasNGCharacters(ByVal fileName As String) As Boolean
 
 End Function
 
-Public Function TrimLF(ByVal Target As String) As String
+Public Function TrimLF(ByVal target As String) As String
   
-  Dim temp As String: temp = Target
+  Dim temp As String: temp = target
   Do Until Left(temp, 1) <> vbLf
     temp = Mid(temp, 2)
   Loop
@@ -99,6 +101,33 @@ Public Function CleanChar(strData As String) As String
         End If
     Next
     CleanChar = result
+
+End Function
+
+Public Function EncodeBasedOnExcelVersion(ByVal target As String) As String
+
+    If VersionIsAvobeExcel2010 Then
+        EncodeBasedOnExcelVersion = Trim(WorksheetFunction.EncodeURL(target))
+        Exit Function
+    End If
+    EncodeBasedOnExcelVersion = Trim(UrlEncode(target))
+    
+End Function
+
+Private Function VersionIsAvobeExcel2010() As Boolean
+
+    VersionIsAvobeExcel2010 = (Val(Application.Version) > VERSION_OF_EXCEL2010)
+
+End Function
+
+Public Function UrlEncode(ByVal target As String) As String
+
+    Dim sc As Object
+    Set sc = CreateObject("ScriptControl")
+    
+    sc.Language = "JScript"
+    UrlEncode = sc.CodeObject.encodeURIComponent(target)
+    Set sc = Nothing
 
 End Function
 

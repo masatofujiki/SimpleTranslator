@@ -51,6 +51,7 @@ Public Sub DeleteColumns()
     Range(Cells(TranslatorSheet.ROW_START, TranslatorSheet.COL_SRC_ORIGINAL), Cells(lastRow, TranslatorSheet.COL_SRC_ORIGINAL)).Borders(xlEdgeTop).LineStyle = xlNone
     Range(Cells(TranslatorSheet.ROW_START, TranslatorSheet.COL_SRC_ORIGINAL), Cells(lastRow, TranslatorSheet.COL_SRC_ORIGINAL)).Interior.ColorIndex = xlNone
     Range(Cells(TranslatorSheet.ROW_START, TranslatorSheet.COL_SRC_ORIGINAL), Cells(lastRow, TranslatorSheet.COL_SRC_ORIGINAL)).EntireRow.AutoFit
+    Range("A2").Select
 
 End Sub
 

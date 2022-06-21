@@ -147,9 +147,9 @@ Public Sub TransLateToSheet()
         startTime_ = Timer
         Do While (currentRow_ <= lastRow_)
             Dim targetText As String
-            targetText = Trim(WorksheetFunction.EncodeURL(dstSheet_.Cells(currentRow_, originalTextColumn_).value))
+            targetText = Trim(EncodeBasedOnExcelVersion(dstSheet_.Cells(currentRow_, originalTextColumn_).value))
             If Len(Trim(targetText)) <> 0 Then
-                Dim myTarget As Target: Set myTarget = New Target
+                Dim myTarget As target: Set myTarget = New target
                 Call myTarget.Initialize(dstSheet_.Cells(currentRow_, originalTextColumn_).value, CStr(TranslateDeepL(targetText)))
                 targets_.Add myTarget
                 dstSheet_.Cells(currentRow_, translatedTextColumn_).value = myTarget.translatedText_

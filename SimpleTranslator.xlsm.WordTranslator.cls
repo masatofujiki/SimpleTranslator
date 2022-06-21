@@ -44,15 +44,15 @@ Private stopTime_ As Double
 Private driver_ As WebDriver
 Private originals_ As Collection
 Private fileName_ As String
-Private wordApp_ As Word.Application
-Private wordDoc_ As Word.Document
+Private wordApp_ As Object
+Private wordDoc_ As Object
 Private currentParagraph_ As Long
 Private lastParagraph_ As Long
 Private outputLanguage_ As String
 
 Public Sub Initialize(ByVal fileName As String, ByVal outputLanguage As String)
 
-    Set wordApp_ = New Word.Application
+    Set wordApp_ = CreateObject("Word.Application")
     Set originals_ = New Collection
     fileName_ = fileName
     wordApp_.Visible = True
@@ -65,7 +65,7 @@ Public Sub CreateWordParagraphs()
 
     Set wordDoc_ = wordApp_.Documents.Open(fileName_)
     lastParagraph_ = wordDoc_.Paragraphs.Count
-    Dim para As Paragraph
+    Dim para As Object
     For Each para In wordDoc_.Paragraphs
         Dim original As WordOriginal
         Set original = New WordOriginal
@@ -110,7 +110,7 @@ Public Sub CreateTranslatedPDF()
             Dim targetText As String
             targetText = TrimLF(Trim(original.originalText_))
             If Len(targetText) <> 0 Then
-                targetText = WorksheetFunction.EncodeURL(targetText)
+                targetText = EncodeBasedOnExcelVersion(targetText)
                 original.translatedText_ = TranslateDeepL(targetText)
                 Call ProgressBarForm.UpdateProgress(currentParagraph_, lastParagraph_)
             End If

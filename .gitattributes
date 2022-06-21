@@ -4,3 +4,5 @@
 *.cls export-ignore
 *.frm export-ignore
 *.frx export-ignore
+*.md
+img/ export-ignore

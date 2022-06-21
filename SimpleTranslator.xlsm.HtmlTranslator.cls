@@ -92,9 +92,9 @@ Public Sub TransLateToHtml()
         startTime_ = Timer
         Do While (currentRow_ <= lastRow_)
             Dim targetText As String
-            targetText = Trim(WorksheetFunction.EncodeURL(srcSheet_.Cells(currentRow_, TranslatorSheet.COL_SRC_ORIGINAL).value))
+            targetText = Trim(EncodeBasedOnExcelVersion(srcSheet_.Cells(currentRow_, TranslatorSheet.COL_SRC_ORIGINAL).value))
             If Len(Trim(targetText)) <> 0 Then
-                Dim myTarget As Target: Set myTarget = New Target
+                Dim myTarget As target: Set myTarget = New target
                 Dim src As String
                 src = srcSheet_.Cells(currentRow_, TranslatorSheet.COL_SRC_ORIGINAL).value
                 Dim dst As String
@@ -219,7 +219,7 @@ End Sub
 
 Private Sub CreateContents(ByRef sb As StringBuilder)
 
-    Dim myTarget As Target
+    Dim myTarget As target
     For Each myTarget In targets_
         sb.Add "<tr>"
         sb.Add "<td>"
