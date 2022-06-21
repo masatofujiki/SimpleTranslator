@@ -167,7 +167,7 @@ Excel に貼り付けた外国語を Chrome Driver と DeepL でお手軽に翻�
 3. [【Selenium】VBA でも WebDriver を自動で更新したい！][f]
 
 [a]: https://github.com/masatofujiki/SimpleTranslator/blob/main/README.md
-[b]: https://github.com/masatofujiki/SimpleTranslator/archive/refs/tags/v1.3.0.zip
+[b]: https://github.com/masatofujiki/SimpleTranslator/archive/refs/tags/v1.3.1.zip
 [c]: https://www3.nhk.or.jp/nhkworld/en/news/backstories/1622/
 [e]: https://qiita.com/uezo/items/66e20b064ffd5f239b9a
 [f]: https://qiita.com/yamato1413/items/4b982aee46f28358fd39

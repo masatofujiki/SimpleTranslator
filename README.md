@@ -95,7 +95,7 @@ The idea is to provide a translation tool that can compare the translated text w
 3. [[Selenium] I want to update WebDriver automatically even with VBA!][f]
 
 [a]: https://github.com/masatofujiki/SimpleTranslator/blob/main/README_JA.md
-[b]: https://github.com/masatofujiki/SimpleTranslator/archive/refs/tags/v1.3.0.zip
+[b]: https://github.com/masatofujiki/SimpleTranslator/archive/refs/tags/v1.3.1.zip
 [c]: https://www3.nhk.or.jp/news/html/20210728/k10013161181000.html
 [e]: https://qiita.com/uezo/items/66e20b064ffd5f239b9a
 [f]: https://qiita.com/yamato1413/items/4b982aee46f28358fd39
