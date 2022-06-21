@@ -4,5 +4,6 @@
 *.cls export-ignore
 *.frm export-ignore
 *.frx export-ignore
-*.md
+*.md export-ignore
+LICENSE export-ignore
 img/ export-ignore
